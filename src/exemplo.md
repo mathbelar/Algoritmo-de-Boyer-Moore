@@ -24,7 +24,7 @@ O desafio está em fazer isso de forma rápida e eficiente, principalmente quand
 
 ``` py 
 texto = "Exemplo que o digão usou"
-padrao = "Digão"
+padrao = "digão"
 print(padrao in texto)  
 ```
 
@@ -79,9 +79,99 @@ O padrão "programação" foi encontrado na posição 18 do texto. Isso signific
 
 ???
 
-??? DIGAO FAZ ESSA PARTE 
-explique os 2 métodos e apresente o código do algoritmo 
-??? 
+!!! Aviso
+Chegamos à seção crucial para compreender o coração do algoritmo de Boyer-Moore!
+Aqui, exploraremos as duas heurísticas principais que tornam o algoritmo tão eficiente: a **heurística do mau caractere** e a **heurística do bom sufixo**.
+!!!
+
+
+Heurística do Mau Caractere 
+------------------------
+
+Essa heurística é usada quando o padrão não bate com o texto durante a comparação.
+Em vez de avançar o padrão só uma posição (como na Brute Force), o Boyer-Moore tenta "pular" mais posições com base no caractere que causou o erro.
+
+**Ou seja**
+
+Se um caractere do texto não bate com o do padrão, o algoritmo pergunta:
+“Esse caractere aparece em outro lugar do padrão?”
+
+* Se sim, move o padrão até alinhar com essa outra ocorrência.
+
+* Se não, pode pular o padrão todo além desse caractere.
+
+!!! Atenção
+O padrão é comparado com o texto da direita para a esquerda. Quando uma letra do texto não corresponde à letra do padrão, o algoritmo usa a **heurística do mau caractere**
+!!!
+
+
+??? Exemplo 1
+
+Texto: "ABCDEF"
+
+Padrão: "CDE"
+
+Vamos comparar da direita pra esquerda:
+
+```plaintext
+Texto:  A B C D E F
+               ↑
+Padrão:     C D E
+               ↑
+```
+
+1ª comparação:
+Letra do texto: F
+Letra do padrão: E
+→ Não bate!
+
+**Agora é aplicado a heurística:**
+
+* O caractere que causou erro foi o F.
+
+* O F existe dentro do padrão "CDE"?  **Não existe**.
+
+Então, podemos mover o padrão inteiro para a direita do F, porque não faz sentido tentar comparar o padrão onde o F está.
+
+**Resultado:** o padrão é deslocado 3 posições à frente!
+
+
+???
+
+
+??? Exemplo 2
+
+Texto: "ABCABCABC"
+
+Padrão: "CAB"
+
+
+Alinhamento dos caracteres
+
+```plaintext
+Texto:    A B C A B C A B C
+                      ↑
+Padrão:          C A B
+                      ↑
+```
+
+1ª comparação:
+Letra do texto: C
+Letra do padrão: B
+→ Não bate!
+
+**Caractere do erro:** C
+
+C aparece na primeira letra do padrão.
+
+Então, podemos mover o padrão de forma que o C do texto se alinhe com o C do padrão.
+
+**Resultado**: padrão anda 2 posições para a direita.
+
+???
+
+**Qual a Vantagem?**
+Em vez de comparar o padrão com cada posição do texto uma por uma, o algoritmo usa o caractere que causou a falha para decidir quantas posições pode pular com segurança. Isso permite que ele avance mais rápido no texto, economizando tempo e evitando comparações desnecessárias.
 
 Análise de Complexidade
 ------------------------
