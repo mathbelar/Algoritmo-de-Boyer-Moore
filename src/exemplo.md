@@ -79,6 +79,69 @@ O padrão "programação" foi encontrado na posição 18 do texto. Isso signific
 
 ???
 
+??? DIGAO FAZ ESSA PARTE 
+explique os 2 métodos e apresente o código do algoritmo 
+??? 
+
+Análise de Complexidade
+------------------------
+O algoritmo de Boyer-Moore é conhecido por ser um dos algoritmos mais rápidos para busca de padrões em textos. Isso acontece porque, diferente da abordagem de força bruta, ele é capaz de “pular” grandes trechos do texto sem precisar comparar todos os caracteres um por um. Logo, vamos analisar isso em três cenários:
 
 
+??? Melhor Caso 
 
+
+**Complexidade: O(n/m)**
+
+Aqui, n é o tamanho do texto e m é o tamanho do padrão.
+
+Isso acontece quando os caracteres do texto e do padrão são muito diferentes.
+
+Como a comparação é feita de **trás para frente**, ele detecta rapidamente que o padrão não bate, e graças à heurística do mau caractere, consegue pular vários caracteres de uma vez.
+
+::: Exemplo
+
+* **Texto** = "aaaaaaaaaaaaaaaaaaaa"
+* **Padrão** = "xyz" 
+
+ O algoritmo avança rapidamente, pois nota que o ‘z’ não está em lugar nenhum.
+:::
+???
+
+??? Pior Caso
+
+
+**Complexidade: O(n·m)**
+
+No pior cenário, o algoritmo pode acabar sendo tão lento quanto os métodos tradicionais, isso ocorre em situações bem específicas, onde as heurísticas não conseguem oferecer pulos vantajosos.
+
+Pode acontecer quando o padrão tem repetições internas que atrapalham os saltos, ou quando os dados são manipulad os justamente para enganar as heurísticas.
+
+::: Exemplo 
+
+* **Texto** = "aaaaaaaaaa"
+* **Padrão** = "aaaab" 
+
+O algoritmo vai tentar alinhar muitas vezes até perceber que o padrão não está ali.
+
+:::
+???
+
+??? Caso Médio (mais comum no uso real)
+
+Complexidade esperada: Entre O(n) e O(n + m)
+
+Graças ao pré-processamento do padrão e à eficiência das heurísticas (especialmente em padrões grandes), o algoritmo geralmente faz muito menos comparações que a força bruta.
+
+Na prática, o Boyer-Moore costuma ser várias vezes mais rápido do que outros algoritmos, especialmente quando o alfabeto é grande (como em textos em inglês ou código-fonte) e o padrão é longo.
+
+::: Exemplo 
+
+* **Texto** = "Em algoritmos de busca, eficiência é tudo. O Boyer-Moore é muito bom em encontrar padrões rapidamente."
+
+* **Padrão** = "padrões"
+
+O algoritmo ignora partes do texto que não têm letras do final do padrão e foca onde realmente há chance de encontrar. Quando encontra algo parecido, faz a verificação completa.
+
+::: 
+???
