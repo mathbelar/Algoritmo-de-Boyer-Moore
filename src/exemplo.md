@@ -173,6 +173,115 @@ Então, podemos mover o padrão de forma que o C do texto se alinhe com o C do p
 **Qual a Vantagem?**
 Em vez de comparar o padrão com cada posição do texto uma por uma, o algoritmo usa o caractere que causou a falha para decidir quantas posições pode pular com segurança. Isso permite que ele avance mais rápido no texto, economizando tempo e evitando comparações desnecessárias.
 
+Heurística do Bom Sufixo  
+------------------------
+
+Essa é a segunda ideia principal do nosso algoritmo. Ela entra em ação quando parte do padrão **bate com o texto**, mas a comparação falha logo **antes do final**.
+
+Em vez de descartar totalmente o que já bateu, o Boyer-Moore tenta **reaproveitar** esse pedaço que deu certo, chamado de **"bom sufixo"**.
+
+**Ou seja**
+
+Se uma parte do final do padrão corresponde ao texto, mas o caractere anterior causa erro, o algoritmo pergunta:
+“Esse sufixo que bateu aparece em outro lugar dentro do padrão?”
+
+* Se sim, move o padrão até alinhar esse sufixo com essa outra ocorrência.
+
+* Se não, tenta alinhar com algum sufixo menor que também seja válido, ou então move o padrão inteiro para frente.
+
+!!! Atenção  
+A comparação ainda é feita da direita para a esquerda. Se uma parte do final do padrão bateu antes do erro, o algoritmo usa a **heurística do bom sufixo** para evitar trabalho repetido.  
+!!!
+
+??? Exemplo 1
+
+
+Quando ocorre um **mismatch** após alguns caracteres do padrão terem casado com o texto, procuramos alinhar o maior sufixo casado com sua próxima ocorrência dentro do próprio padrão. Isso permite pular múltiplas posições, economizando comparações.
+
+---
+
+
+### Primeira comparação:
+
+```plaintext
+                    t---t
+Texto:  C G T G C C T A C T TACTTACTTACTTACGCGAA
+                  X ↑ ↑ ↑
+Padrão:       C T T A C T T A C
+                        X ↑ ↑ ↑
+```
+
+C bate com C, A bate com A e T bate com T.  
+No entanto, há um **mismatch** na quarta comparação: **T (do padrão)** ≠ **C (do texto)**.
+
+➡ O sufixo que casou foi `TAC`. Esse é o bom sufixo(sera chamado de pequeno t), vamos destacar ele com t tracejado, conforme o algoritmo trabalha esse "pequeno t" aumenta.
+
+🔍 Procuramos o sufixo `TAC` dentro do padrão para encontrar sua próxima ocorrência.
+
+```plaintext
+Padrão:       C T T A C T T A C
+                  ↑ ↑ ↑
+```
+
+Achamos!
+Agora vamos "encaixar" esse sufixo no nosso pequeno t.
+
+---
+
+### Segunda comparação:
+
+```plaintext
+                     t-----------t 
+Texto:   C G T G C C T A C T T A C T T A C T T A C T T A CGCGAA
+                   X ↑ ↑ ↑ ↑ ↑ ↑ ↑
+Padrão:          C T T A C T T A C
+                   X ↑ ↑ ↑ ↑ ↑ ↑ ↑
+```
+
+Tentamos novamente. Ainda há um **mismatch** posterior.
+Aqui é um pouco mais dificil de visualizar o proximo passo, ja que nosso pequeno t não se encaixaria mais no nosso padrão, mas temos temos uma solução!
+
+A sacada aqui é que há um prefixo do padrão que se encaixa no sufixo do pequeno t.
+
+```plaintext
+                     t-----------t 
+Texto:   C G T G C C T A C T T A C T T A C T T A C T T A CGCGAA
+                         ↑ ↑ ↑ ↑ ↑
+
+Padrão:          C T T A C T T A C
+                 ↑ ↑ ↑ ↑ ↑ 
+                 (prefixo)
+```
+
+Agora, nos resta encaixar esse prefixo com o sufixo do texto e continuar procurando.
+
+---
+
+### Terceira comparação:
+
+```plaintext
+Texto:   C G T G C C T A C T T A C T T A C T T A C T T A C G C G A A
+                         ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑
+Padrão:                  C T T A C T T A C
+                         ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑
+```
+
+✅ **Todas as letras do padrão casam com o texto!**
+
+➡ O padrão foi encontrado na posição 10 do texto.
+
+---
+
+
+???
+
+
+Qual heurística usar?
+------------------------
+Bom, agora que você entendeu as ideias principais do algortimo, talvez tenha surgido a questão de qual usar, ja que em alguns casos, ambas podem ser aplicadas.
+
+A resposta é simples, o que pular mais caracteres! Como a ideia do aloritmo é sempre ser otimizado e rápido, a heurística que mais pular caracteres inúteis(mismatches) será a escolhida.
+
 Análise de Complexidade
 ------------------------
 O algoritmo de Boyer-Moore é conhecido por ser um dos algoritmos mais rápidos para busca de padrões em textos. Isso acontece porque, diferente da abordagem de força bruta, ele é capaz de “pular” grandes trechos do texto sem precisar comparar todos os caracteres um por um. Logo, vamos analisar isso em três cenários:
