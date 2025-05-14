@@ -28,56 +28,53 @@ padrao = "digão"
 print(padrao in texto)  
 ```
 
-Antes de explorarmos o algoritmo de Boyer-Moore, é interessante entender como a busca de padrões era feita antes. O método mais simples é a Busca Brute Force
+Antes de explorarmos o algoritmo de Boyer-Moore, vamos tentar fazer nosso proprio codigo de busca!
 
-??? Busca Brute Force
+??? Exercicio 1
 
-O algoritmo tenta comparar o padrão com todas as possíveis posições do texto, começando da primeira posição. Para cada posição, ele verifica se o padrão se encaixa, caracter por caracter.
+Faca um codigo em C que percorre um texto, busca um padrao especifico e devolve o indice desse padrao.
+(Faca de maneira simples, pense como voce pode fazer loops que vao checando cada caracter)
 
-1. O algoritmo começa pela primeira posição do texto e tenta comparar o padrão com o pedaço da frase do texto que começa naquela posição.
+::: Gabarito
 
-2. Ele compara a primeira letra do padrão com a primeira letra do pedaço da frase.
+```C
+int buscar_padrao(char *texto, char *padrao) {
+    int i = 0;
+    int j = 0;
+    int len_texto = strlen(texto);
+    int len_padrao = strlen(padrao);
 
-3. Se a letra for diferente, ele move uma posição à frente e tenta novamente.
+    for (i = 0; i <= len_texto - len_padrao; i++) {
+        for (j = 0; j < len_padrao; j++) {
+            if (texto[i + j] != padrao[j]) {
+                break;
+            }
+        }
+        if (j == len_padrao) {
+            printf("Padrão '%s' encontrado na posição %d\n", padrao, i);
+            return i;
+        }
+    }
 
-4. Quando ele encontra uma correspondência exata para todas as letras do padrão, ele encontrou o padrão no texto!
+    printf("Padrão '%s' não encontrado no texto.\n", padrao);
+    return -1;
+}
+```
 
-::: Exemplos
-**Passo a Passo da Busca:**
-
-1. Tenta "Eu ad" – o algoritmo começa pela primeira parte do texto. Ele olha as primeiras 11 letras: "Eu adoro" (porque o padrão "programação" tem 11 letras).
-
-    * Ele começa comparando a primeira letra do padrão "p" com a primeira letra do trecho do texto "E". Como são diferentes, ele sabe que não encontrou o padrão aqui.
-
-    * Resultado da comparação: não bate. O algoritmo move para a próxima posição no texto.
-
-2. Tenta "u ado" – o algoritmo agora olha a parte do texto que começa na segunda letra: "u adoro".
-
-    * De novo, ele compara a primeira letra do padrão "p" com a primeira letra do novo trecho "u". Como são diferentes, ele sabe que também não encontrou o padrão aqui.
-
-    * Resultado da comparação: não bate. Ele move uma posição para frente.
-
-3. Tenta " adoro" – agora ele começa a comparar a parte do texto que começa na terceira letra: " adoro".
-
-    * Ele compara a primeira letra do padrão "p" com a primeira letra da nova parte do texto "a". São diferentes, então ele sabe que ainda não encontrou o padrão.
-
-    * Resultado da comparação: não bate. Ele continua movendo uma posição à frente.
-
-O algoritmo continua repetindo esse processo: ele vai comparando o padrão com pedaços do texto, movendo-se uma posição para frente a cada vez, até chegar à parte em que o padrão de fato se encaixa.
-
-4. Encontra o Padrão:
-Depois de tentar várias vezes, ele chega a um ponto onde o trecho do texto é "programação".
-
-Agora, ele compara o padrão "programação" com esse trecho do texto, e tudo bate perfeitamente!
-
-Resultado Final:
-O padrão "programação" foi encontrado na posição 18 do texto. Isso significa que, se você começar a contar a partir do começo do texto, a palavra "programação" começa na 18ª posição.
-
-
+No codigo acima, nos apenas procuramos o primeiro caractero do nosso padrao e assim que ele eh achado, olhamos os caracteres
+seguintes ate que algum deles seja diferente do padrao, caso nao seja, achamos nosso padrao.
 
 :::
 
 ???
+
+O codigo feito eh funcional, mas como sabemos, ser funcional nao eh a unica coisa que buscamos ao fazer um codigo, precisamos pensar em velocidade, estabilidade, entre outros aspectos. 
+
+??? Exercicio 2
+Determine a complexidade do codigo do nosso codigo
+
+???
+
 
 !!! Aviso
 Chegamos à seção crucial para compreender o coração do algoritmo de Boyer-Moore!
