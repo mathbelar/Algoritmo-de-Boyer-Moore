@@ -30,6 +30,7 @@ print(padrao in texto)
 
 Antes de explorarmos o algoritmo de Boyer-Moore, vamos tentar fazer nosso proprio codigo de busca!
 
+
 ??? Exercicio 1
 
 Faca um codigo em C que percorre um texto, busca um padrao especifico e devolve o indice desse padrao.
@@ -72,6 +73,15 @@ O codigo feito eh funcional, mas como sabemos, ser funcional nao eh a unica cois
 
 ??? Exercicio 2
 Determine a complexidade do codigo do nosso codigo
+
+::: Gabarito (matheus belarmino esta fazendo)
+
+
+* n: tamanho do texto (onde buscamos o padrão).
+* m: tamanho do padrão (a substring que queremos encontrar).
+
+
+:::
 
 ???
 
