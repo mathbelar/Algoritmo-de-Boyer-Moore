@@ -444,49 +444,53 @@ P:                            G T A G C G G C G
 Nesse caso, a regra do Mau caractere teria alinhado o Caracter "G" do texto com o "G" do padrão e teria dado um salto de apenas 2 posições.
 ::: 
 ???
-Análise de Complexidade
+Análise de Complexidade 
 ------------------------
-## Análise de Complexidade do Algoritmo de Boyer-Moore
+Chegamos ao pulo do gato! Por que usar o Boyer-Moore em vez da força bruta? A resposta está na complexidade, que faz esse algoritmo ser um verdadeiro foguete em termos de tempo e eficiência computacional. Vamos analisar cada caso e entender como ele se comporta!
+??? Melhor Caso: Complexidade Temporal: ( O(n / m) )
 
-Agora chegamos no pulo do gato! Por que usar o Algoritmo de Boyer-Moore ao invés da força bruta? Para isso, precisamos analisar a **complexidade** de cada algoritmo e entender seu desempenho em termos de **tempo** e **recursos computacionais**!
-
-??? Melhor Caso
-**Complexidade Temporal: \( O(n/m) \)**
-
-Aqui, \( n \) é o tamanho do texto e \( m \) é o tamanho do padrão.
-
-Isso acontece quando os caracteres do texto e do padrão são muito diferentes. Como a comparação é feita de **trás para frente**, o algoritmo detecta rapidamente que o padrão não bate, e, graças à **heurística do mau caractere**, consegue pular vários caracteres de uma vez (até \( m \) posições).
-
+Aqui, ( n ) é o tamanho do texto e ( m ) é o tamanho do padrão.
+O melhor caso é onde o Boyer-Moore brilha como ouro! Isso rola quando os caracteres do texto são bem diferentes dos do padrão. Se o caractere do texto não está no padrão, o algoritmo pula até ( m ) posições de uma tacada, tornando a busca sublinear e rapidíssima.
 ::: Exemplo
-- **Texto**: `"aaaaaaaaaaaaaaaaaaaa"`
-- **Padrão**: `"xyz"`
 
-O algoritmo avança rapidamente, pois nota que o ‘z’ não está no texto, pulando \( m = 3 \) caracteres a cada iteração.
+```plaintext    
+T: "AAAAAAAAAAAAAAAAAAAA"
+P: "BCDE"
+``` 
+
+Na primeira comparação, o algoritmo vê que **( T[3] = A )** não está em **( P = BCDE )**. A heurística do mau caractere manda pular **( m = 4 )** posições. Isso se repete, examinando poucos caracteres (ex.: ( **T[3], T[7], T[11]** )), e a busca acaba em cerca de ( n / m = 20 / 4 = 5 ) 5 iterações.
 :::
 ???
-??? Pior Caso
-**Complexidade Temporal: \( O(n \cdot m) \)**
 
-No pior cenário, o algoritmo pode ser tão lento quanto a força bruta. Isso ocorre em situações específicas, como quando o texto e o padrão têm muitas repetições, dificultando deslocamentos grandes.
-
+??? Pior Caso: Complexidade Temporal: ( O(nm) )
+No pior caso, o Boyer-Moore pode ser tão lento quanto a força bruta. Isso acontece quando o texto e o padrão têm muitas repetições, o que faz as heurísticas (especialmente a do sufixo bom) darem saltos mínimos, geralmente de 1 posição. Aí, o algoritmo acaba verificando quase todos os caracteres do padrão em cada alinhamento.
 ::: Exemplo
-- **Texto**: `"aaaaaaaaaa"`
-- **Padrão**: `"aaaab"`
 
-O algoritmo faz muitas verificações, pois os caracteres `a` aparecem frequentemente, resultando em deslocamentos pequenos (mínimo de 1).
+```plaintext    
+T:   "aaaaaaaaaaaaaaaaa"
+P:  "aaaab"
+``` 
+
+
+A cada tentativa:
+- 4 comparações de 'a' com 'a' (batem)
+- 1 comparação de 'b' com 'a' (falha)
+- Salto de 1 posição
+
+
 :::
 ???
-??? Caso Médio (Mais Comum no Uso Real)
-**Complexidade Temporal Esperada: \( O(n + m) \)**
-
-Na prática, o Boyer-Moore é muito eficiente, especialmente em textos com alfabetos grandes (como inglês ou código-fonte) e padrões longos. O pré-processamento do padrão (\( O(m) \)) e a heurística do mau caractere reduzem significativamente o número de comparações.
+??? Caso Médio (Mais Comum no Uso Real): Complexidade Temporal Esperada: ( O(n + m) )
+Na prática, o Boyer-Moore é um monstro da eficiência! Ele é perfeito para textos com alfabetos grandes (como português ou código-fonte) e padrões longos. O pré-processamento do padrão O(m) e as heurísticas do mau caractere e sufixo bom cortam o número de comparações, tornando a busca praticamente linear.
 
 ::: Exemplo
-- **Texto**: `"Em algoritmos de busca, eficiência é tudo. O Boyer-Moore é muito bom em encontrar padrões rapidamente."`
-- **Padrão**: `"padrões"`
 
-O algoritmo ignora partes do texto que não contêm o caractere final do padrão (`s`) e faz verificações completas apenas onde há chance de correspondência.
+```plaintext    
+T: "abcxabcdabcdabcy"
+P: "abcdabcy"
+``` 
+
+
+Ao comparar com o texto, o algoritmo consegue saltar vários caracteres por causa das heurísticas — evitando comparações redundantes.
 :::
-
-**Por que Boyer-Moore?** Comparado à força bruta (\( O(n \cdot m) \)), o Boyer-Moore é muito mais rápido no caso médio e no melhor caso, tornando-o ideal para busca de padrões em textos grandes!
 ???
