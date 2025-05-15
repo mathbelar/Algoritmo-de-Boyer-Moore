@@ -285,69 +285,118 @@ Padrão:                  C T T A C T T A C
 
 Qual heurística usar?
 ------------------------
-Bom, agora que você entendeu as ideias principais do algortimo, talvez tenha surgido a questão de qual usar, ja que em alguns casos, ambas podem ser aplicadas.
+Bom, agora que você entendeu as ideias principais do algortimo, talvez tenha surgido a dúvida de qual eurística usar. 
 
-A resposta é simples, o que pular mais caracteres! Como a ideia do aloritmo é sempre ser otimizado e rápido, a heurística que mais pular caracteres inúteis(mismatches) será a escolhida.
+A resposta é simples, a que pular mais caracteres! Como a ideia do algoritmo é sempre ser otimizado e rápido, a heurística que mais pular caracteres inúteis(mismatches) será a escolhida.
 
+??? Exercicio 2
+
+Portanto, para compreender melhor essa questão, vamos utilizar as duas eurísticas para resolver esse problema. Lembre-se que: é possível utilizá-las ao mesmo tempo,mas deve-se priorizar àquela que mais pulará mismatches!! Pegue um lápis e papel que vamos trabalhar (tente fazer, antes de ver os passos).
+
+
+Por questão de simplicidade e alinhamento consideraremos texto = T e padrão = P
+
+```plaintext        
+                      ↓
+T:    G T T A T A G C T G A T C G C G G C G T A G C G G C G A A
+        ↓              
+P:    G T A G C G G C G 
+```
+Como ainda não é possível/eficiente utilizar a regra do Bom Sufixo, começaremos pela regra do Mau Caractére, identifique **onde** no padrão aparece caractere T mova-o para alinhá-lo com o texto: 
+
+::: Step 1
+```plaintext                
+                              ↓ 
+T:    G T T A T A G C T G A T C G C G G C G T A G C G G C G A A
+                    X       ↓  
+P:                  G T A G C G G C G
+```         
+
+Foi possível dar um salto de 6 posições! Agora chegamos num dilema. Qual das heurísticas usar? Pense um pouco a respeito, e tente prosseguir (Escolha aquela que der o maior salto). 
+::: 
+
+::: Step 2 
+
+```plaintext
+                              ↓ t---t        
+T:    G T T A T A G C T G A T C G C G G C G T A G C G G C G A A
+                    X     X    
+P:                        G T A G C G G C G
+```     
+A melhor escolha a ser feita era a heurística do Bom sufixo, tendo em vista que foi possível pular duas posições. Para melhorar o entendimento, se tivessemos optado pela heurística do Mau Caractére pulariamos apenas um caractere e ficaria assim
+
+```plaintext
+T:    G T T A T A G C T G A T C G C G G C G T A G C G G C G A A
+                      X   X      
+P:                        G T A G C G G C G
+```   
+
+Logo, com a escolha da heurística do **Bom Sufixo**, tente prosseguir (Dica: sempre compare o **final do padrão** ao **final do texto**).
+:::
+::: Step 3 
+```plaintext
+                                                t---------t 
+T:    G T T A T A G C T G A T C G C G G C G T A G C G G C G A A
+                    X     X               X
+P:                                        G T A G C G G C G
+```    
+Novamente, a escolha mais eficiente é a do Bom Sufixo, que permitiu um salto de **7 posições**!! Agora , volte ao **Step 2** e tente aplicar a heurística do Mau Caractére:
+:::
+
+::: Gabarito 
+
+```plaintext
+                                          ↓      
+T:    G T T A T A G C T G A T C G C G G C G T A G C G G C G A A
+                    X     X   X           ↓
+P:                            G T A G C G G C G                                
+```   
+Nesse caso, a regra do Mau caractere teria alinhado o Caracter "G" do texto com o "G" do padrão e teria dado um salto de apenas 2 posições.
+::: 
+???
 Análise de Complexidade
 ------------------------
-O algoritmo de Boyer-Moore é conhecido por ser um dos algoritmos mais rápidos para busca de padrões em textos. Isso acontece porque, diferente da abordagem de força bruta, ele é capaz de “pular” grandes trechos do texto sem precisar comparar todos os caracteres um por um. Logo, vamos analisar isso em três cenários:
+## Análise de Complexidade do Algoritmo de Boyer-Moore
 
+Agora chegamos no pulo do gato! Por que usar o Algoritmo de Boyer-Moore ao invés da força bruta? Para isso, precisamos analisar a **complexidade** de cada algoritmo e entender seu desempenho em termos de **tempo** e **recursos computacionais**!
 
-??? Melhor Caso 
+??? Melhor Caso
+**Complexidade Temporal: \( O(n/m) \)**
 
+Aqui, \( n \) é o tamanho do texto e \( m \) é o tamanho do padrão.
 
-**Complexidade: O(n/m)**
-
-Aqui, n é o tamanho do texto e m é o tamanho do padrão.
-
-Isso acontece quando os caracteres do texto e do padrão são muito diferentes.
-
-Como a comparação é feita de **trás para frente**, ele detecta rapidamente que o padrão não bate, e graças à heurística do mau caractere, consegue pular vários caracteres de uma vez.
+Isso acontece quando os caracteres do texto e do padrão são muito diferentes. Como a comparação é feita de **trás para frente**, o algoritmo detecta rapidamente que o padrão não bate, e, graças à **heurística do mau caractere**, consegue pular vários caracteres de uma vez (até \( m \) posições).
 
 ::: Exemplo
+- **Texto**: `"aaaaaaaaaaaaaaaaaaaa"`
+- **Padrão**: `"xyz"`
 
-* **Texto** = "aaaaaaaaaaaaaaaaaaaa"
-* **Padrão** = "xyz" 
-
- O algoritmo avança rapidamente, pois nota que o ‘z’ não está em lugar nenhum.
+O algoritmo avança rapidamente, pois nota que o ‘z’ não está no texto, pulando \( m = 3 \) caracteres a cada iteração.
 :::
 ???
-
 ??? Pior Caso
+**Complexidade Temporal: \( O(n \cdot m) \)**
 
+No pior cenário, o algoritmo pode ser tão lento quanto a força bruta. Isso ocorre em situações específicas, como quando o texto e o padrão têm muitas repetições, dificultando deslocamentos grandes.
 
-**Complexidade: O(n·m)**
+::: Exemplo
+- **Texto**: `"aaaaaaaaaa"`
+- **Padrão**: `"aaaab"`
 
-No pior cenário, o algoritmo pode acabar sendo tão lento quanto os métodos tradicionais, isso ocorre em situações bem específicas, onde as heurísticas não conseguem oferecer pulos vantajosos.
-
-Pode acontecer quando o padrão tem repetições internas que atrapalham os saltos, ou quando os dados são manipulad os justamente para enganar as heurísticas.
-
-::: Exemplo 
-
-* **Texto** = "aaaaaaaaaa"
-* **Padrão** = "aaaab" 
-
-O algoritmo vai tentar alinhar muitas vezes até perceber que o padrão não está ali.
-
+O algoritmo faz muitas verificações, pois os caracteres `a` aparecem frequentemente, resultando em deslocamentos pequenos (mínimo de 1).
 :::
 ???
+??? Caso Médio (Mais Comum no Uso Real)
+**Complexidade Temporal Esperada: \( O(n + m) \)**
 
-??? Caso Médio (mais comum no uso real)
+Na prática, o Boyer-Moore é muito eficiente, especialmente em textos com alfabetos grandes (como inglês ou código-fonte) e padrões longos. O pré-processamento do padrão (\( O(m) \)) e a heurística do mau caractere reduzem significativamente o número de comparações.
 
-Complexidade esperada: Entre O(n) e O(n + m)
+::: Exemplo
+- **Texto**: `"Em algoritmos de busca, eficiência é tudo. O Boyer-Moore é muito bom em encontrar padrões rapidamente."`
+- **Padrão**: `"padrões"`
 
-Graças ao pré-processamento do padrão e à eficiência das heurísticas (especialmente em padrões grandes), o algoritmo geralmente faz muito menos comparações que a força bruta.
+O algoritmo ignora partes do texto que não contêm o caractere final do padrão (`s`) e faz verificações completas apenas onde há chance de correspondência.
+:::
 
-Na prática, o Boyer-Moore costuma ser várias vezes mais rápido do que outros algoritmos, especialmente quando o alfabeto é grande (como em textos em inglês ou código-fonte) e o padrão é longo.
-
-::: Exemplo 
-
-* **Texto** = "Em algoritmos de busca, eficiência é tudo. O Boyer-Moore é muito bom em encontrar padrões rapidamente."
-
-* **Padrão** = "padrões"
-
-O algoritmo ignora partes do texto que não têm letras do final do padrão e foca onde realmente há chance de encontrar. Quando encontra algo parecido, faz a verificação completa.
-
-::: 
+**Por que Boyer-Moore?** Comparado à força bruta (\( O(n \cdot m) \)), o Boyer-Moore é muito mais rápido no caso médio e no melhor caso, tornando-o ideal para busca de padrões em textos grandes!
 ???
