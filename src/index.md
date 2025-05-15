@@ -95,6 +95,70 @@ Aqui, exploraremos as duas heurísticas principais que tornam o algoritmo tão e
 Heurística do Mau Caractere 
 ------------------------
 
+Antes de explicar a heuíristica, vamos tentar melhorar nosso codigo anterior para irmos entendendo melhor de onde vem essa ideia do mau caractere.
+
+??? Exercicio 3
+Primeiro, pense o seguinte, se voce tivesse que verificar se uma palavra de um texto é igual a palavra que voce esta procurando, seria mais EFICIENTE começar do inicio da palavra ate o final, ou começar do final(esquerda para direita)?
+
+Dica: pense qual seria o proximo passo se o caractere que voce esta checando estiver errado.
+
+::: Gabarito
+Começar pelo final é a forma mais eficiente, pois dessa forma voce consegue fazer saltos maiores e ignorar palavras inuteis. Se voce estiver porcurando uma palavra de oito letras e a ultima ja estiver errada, voce pode ignorar as outras sete letras e pular para o proximo intervalo de oito letras, enquanto que se voce estivesse procurando do comeco ao fim, o unico salto possivel seria um(para a proxima letra).
+
+:::
+
+???
+
+??? Exercicio 4
+Agora que voce entendeu uma forma mais eficiente de procurar uma palavra num texto, vamos melhorar nosso codigo!
+
+Aprimore o codigo do exercicio 1 para que ele busque pela ultima letra.
+
+::: Gabarito
+Voce deve ter chegado em algo assim
+
+```C
+int buscar_padrao_otimizado(char *texto, char *padrao) {
+    int len_texto = strlen(texto);
+    int len_padrao = strlen(padrao);
+
+    // Verificar se o padrão é maior que o texto
+    if (len_padrao > len_texto) {
+        printf("Padrão '%s' não encontrado no texto.\n", padrao);
+        return -1;
+    }
+
+    int i = 0;
+
+    while (i <= len_texto - len_padrao) {
+        int j = len_padrao - 1;
+
+        // Verificar o intervalo da direita para a esquerda
+        while (j >= 0 && texto[i + j] == padrao[j]) {
+            j--;
+        }
+
+        // Se j < 0, o padrão foi encontrado
+        if (j < 0) {
+            printf("Padrão '%s' encontrado na posição %d\n", padrao, i);
+            return i;
+        }
+
+        // Pular para o próximo intervalo
+        i += len_padrao;
+    }
+
+    printf("Padrão '%s' não encontrado no texto.\n", padrao);
+    return -1;
+}
+```
+
+Iterando dessa forma podemos fazer saltos muito maiores no nosso texto, mas devemos ter cuidado!
+Nem sempre pular o intervalo inteiro da palavra é o passo certo, por isso a heurística do mal caractere nem sempre pula esse intervalo, a ideia esta mais relacionado a encaixar o padrão no texto, isso ficará mais claro nos próximos passos.
+::: 
+
+???
+
 Essa heurística é usada quando o padrão não bate com o texto durante a comparação.
 Em vez de avançar o padrão só uma posição (como na Brute Force), o Boyer-Moore tenta "pular" mais posições com base no caractere que causou o erro.
 
