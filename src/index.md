@@ -72,13 +72,39 @@ seguintes ate que algum deles seja diferente do padrao, caso nao seja, achamos n
 O codigo feito eh funcional, mas como sabemos, ser funcional nao eh a unica coisa que buscamos ao fazer um codigo, precisamos pensar em velocidade, estabilidade, entre outros aspectos. 
 
 ??? Exercicio 2
-Determine a complexidade do codigo do nosso codigo
+Determine a complexidade do codigo do nosso codigo e análise qual é o pior e o melhor caso no tempo
 
-::: Gabarito (matheus belarmino esta fazendo)
+::: Gabarito 
+
+**Passo 1: Laço externo**
+
+A variável $i$ começa em 0 e é incrementada até ` len_texto - len_padrao`.  
+Ou seja, são feitas $n - m + 1$ iterações no pior caso, onde:
+
+- $n$ = tamanho do texto  
+- $m$ = tamanho do padrão
+
+**Passo 2: Laço interno**
+
+Para cada valor de $i$, o laço interno compara o padrão com a parte correspondente do texto.
+
+- Ele pode executar até $m$ comparações (se todos os caracteres coincidirem).
+- Se houver uma diferença logo no início, o laço interno pode terminar após uma única comparação(caso bom).
 
 
-* n: tamanho do texto (onde buscamos o padrão).
-* m: tamanho do padrão (a substring que queremos encontrar).
+**Passo 3: Total de comparações**
+
+No pior caso, o laço interno executa $m$ comparações para cada uma das $n - m + 1$ posições do texto.  
+Isso gera um total de:
+
+$$(n - m + 1) \cdot m \approx n \cdot m$$
+
+**Complexidade no tempo**
+
+
+- **Pior caso:** $O(n \cdot m)$
+- **Melhor caso:** $O(n)$, se sempre houver incompatibilidade na primeira comparação
+
 
 
 :::
