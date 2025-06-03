@@ -277,37 +277,17 @@ Por que a última ocorrência? Para garantir que não pulemos demais e percamos 
 
 ??? Pratique o Salto (Atividade 6)
 
-Texto T = `... B A N A N A ...`
-Padrão P = `C A N T A`
+Pensando na atividade 5 e no que você acabou de ler, como ficariam os saltos para o seguinte caso?
+(Lembre-se da ideia de "alinhar" texto e padrão)
 
-Alinhamento:
-```
-Texto:  ... B A N A N A ...
-                 ↑
-Padrão:       C A N T A
-                 ↑
-```
-Comparação: `N` (texto) vs `A` (padrão). Falha! Mau caractere = `N`.
+![](AT6.0.png)
 
-O caractere `N` existe no padrão `CANTA`? Se sim, qual a posição da sua *última* ocorrência (contando de 0)? Qual seria o salto sugerido pela Heurística do Mau Caractere?
 
 ::: Gabarito
 
-Sim, o caractere `N` existe no padrão `CANTA`.
-A última (e única) ocorrência de `N` está na posição 2 (`C A [N] T A`).
+:AT6
 
-A falha ocorreu na comparação do último caractere do padrão (posição `j=4`).
-O salto é calculado como: `salto = j - ultima_posicao(N) = 4 - 2 = 2`.
-
-Deslizamos o padrão 2 posições para a direita, de forma que o `N` do padrão (posição 2) se alinhe com o `N` do texto (que causou a falha).
-
-Novo Alinhamento:
-```
-Texto:  ... B A N A N A ...
-                   ↑
-Padrão:         C A N T A
-                   ↑
-```
+Na primeira e segunda iteração podemos pular totalmente o intervalo pois o mau caractére não aparece no padrão, porém na terceira iteração o maú caractére é o A, e ele aparece no padrão, logo podemos usar a ideia de alinhar e conseguimos encontrar a ocorrência.
 
 :::
 
@@ -343,11 +323,11 @@ A Heurística do Mau Caractere é ótima, mas e se a comparação falhar *depois
 **Exemplo Rápido:**
 
 ```plaintext
-Texto:  ... A B C D E ...
-             ↑ ↑ ↑
-Padrão:    X Y B C D
-           ↑ ↑ ↑ ↑ ↑
-           (Falha aqui!) (Match) (Match) (Match)
+Texto:  ... D E A C F E A A B C D E ...
+                            ↑ ↑ ↑
+Padrão:         A B C D X Y B C D
+                            ↑ ↑ ↑
+       (Falha!) (Match) (Match) (Match)
 ```
 
 Neste caso, os caracteres **B**, **C** e **D** do padrão coincidiram com o texto. Esse trecho que deu match, **BCD**, é o que chamamos de **"Bom Sufixo"**. Seria um desperdício simplesmente ignorar essa informação e usar apenas o mau caractere (**A** do texto vs **Y** do padrão), não acha?
@@ -364,60 +344,16 @@ Este é o caso ideal. Se o sufixo que deu match (t) aparece novamente *exatament
 
 ??? Identifique o Bom Sufixo e o Salto (Atividade 7)
 
-Texto T = ABABDABAC  
+Usando a heurística do bom sufixo, quantos saltos seriam necessários para achar a occorrência do padrão no texto?
 
-Padrão P = DABAC
-
-Alinhamento:
-```plaintext
-Texto:  A B A B D A B A C
-              ↑ ↑ ↑ ↑
-Padrão:     D A B A C
-            ↑ ↑ ↑ ↑ ↑
-           (Falha) (Match) (Match) (Match)
-```
-1. Comparações: C==C, A==A, B==B. Match!
-2. Falha: B (texto) vs A (padrão). Falhou!
-
-Qual é o **Bom Sufixo** (t)? Ele aparece novamente dentro do padrão DABAC? Se sim, qual seria o salto sugerido pela Heurística do Bom Sufixo (Cenário 1)?
+![](AT7.0.png)
 
 ::: Gabarito
 
-O Bom Sufixo (t) é BAC.
+:AT7
 
-Verificamos se BAC aparece novamente *antes* no padrão DABAC. Não, não aparece.
-
-Neste caso, o Cenário 1 não se aplica diretamente. Teríamos que ir para o Cenário 2.
-
-**Vamos ajustar o exemplo para o Cenário 1 funcionar:**
-
-Texto T = ABCABCBAC
-Padrão P = BCBAC
-
-Alinhamento:
-```plaintext
-Texto:  A B C A B C B A C
-              ↑ ↑ ↑ ↑
-Padrão:     B C B A C
-            ↑ ↑ ↑ ↑ ↑
-           (Falha) (Match) (Match) (Match)
-```
-1. Comparações: C==C, A==A, B==B. Match!
-2. Falha: C (texto) vs C (padrão). Match!
-3. Falha: A (texto) vs B (padrão). Falhou!
-
-Bom Sufixo (t) = CBAC.
-
-O bom sufixo CBAC aparece novamente dentro do padrão BCBAC? Não.
-
-**Ok, vamos tentar um exemplo que funcione claramente para o Cenário 1:**
-
-Padrão P = ABMCABM
-Bom Sufixo (t) = CABM (Suponha que isso deu match e a falha ocorreu antes)
-
-O bom sufixo CABM aparece novamente no padrão ABMCABM? Sim, começando na posição 0 ([CABM]CABM).
-
-A heurística alinharia essa ocorrência (posição 0) com o bom sufixo encontrado no texto. O salto seria calculado para fazer esse alinhamento.
+Veja que BCD é o nosso bom sufixo(indicado de azul), encontrando-o denovo no padrão podemos alinhar eles em 1 único salto!
+Perceba que, se você tentar usar apenas a heurística do maú caractére, precisará de 2 saltos para encontrar o padrão. Tente fazer isso!
 
 :::
 
