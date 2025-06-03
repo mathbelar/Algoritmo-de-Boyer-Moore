@@ -352,8 +352,8 @@ Usando a heurística do bom sufixo, quantos saltos seriam necessários para acha
 
 :AT7
 
-Veja que BCD é o nosso bom sufixo(indicado de azul), encontrando-o denovo no padrão podemos alinhar eles em 1 único salto!
-Perceba que, se você tentar usar apenas a heurística do maú caractére, precisará de 2 saltos para encontrar o padrão. Tente fazer isso!
+Veja que BCD é o nosso bom sufixo t(indicado de azul), encontrando-o denovo no padrão podemos alinhar eles em 1 único salto!
+Perceba que, se você tentar usar apenas a heurística do maú caractere, precisará de 2 saltos para encontrar o padrão. Tente fazer isso!
 
 :::
 
@@ -366,27 +366,23 @@ E se o bom sufixo inteiro não se repetir dentro do padrão? A heurística ainda
 
 Ela verifica se existe um **prefixo** (começo) do padrão P que seja igual a um **sufixo** (final) do bom sufixo t. Se houver vários, escolhemos o mais longo.
 
+Talvez você precise ler essa última frase mais uma vez, ela pode parecer confusa, mas com o exemplo tudo ficará mais facil!
+
 ??? Identifique Prefixo e Sufixo (Atividade 8)
 
-Padrão P = ABRACADABRA
-Bom Sufixo (t) = ADABRA (Suponha que isso deu match e a falha ocorreu antes)
+Quais serão as iterações do algoritmo(usando a heurística do bom sufixo) para achar a ocorrência do padrão no texto?
 
-O bom sufixo ADABRA se repete *exatamente* antes no padrão? Não.
+Dica: Comece resolvendo da mesma forma que fez na atividade anterior, quando chegar num ponto sem saída ou confuso, releia a frase sobre os prefixos!
 
-Existe algum **prefixo** de P que seja igual a um **sufixo** de t? Qual o mais longo?
-
-*   Prefixos de P: A, AB, ABR, ABRA, ABRAC, ...
-*   Sufixos de t: A, RA, BRA, ABRA, DABRA, ADABRA
+![](AT8.0.png)
 
 ::: Gabarito
 
-Sim, existem prefixos de P que são sufixos de t:
-*   A (prefixo A, sufixo A)
-*   ABRA (prefixo ABRA, sufixo ABRA)
+:AT8
 
-O mais longo é ABRA.
+Até a terceira iteração você deve ter conseguido chegar sem problemas, porém depois disso, nosso bom sufixo (t) em azul fica grande demais e claramente nao se repete dentro do padrão, é nessa hora que você deve olhar o prefixo do padrão!
 
-A heurística do Bom Sufixo (Cenário 2) sugeriria um salto para alinhar o prefixo ABRA do padrão com o sufixo ABRA do bom sufixo encontrado no texto.
+Fazendo isso podemos ver que o início "CTTAC" do padrão aparece no bom sufixo(t), permitindo mais um salto.
 
 :::
 
@@ -414,15 +410,15 @@ Agora que conhecemos as duas heurísticas do Boyer-Moore, surge uma pergunta nat
 Imagine a situação:
 
 ```plaintext
-Texto:  ... W X Y Z ...
-             ↑ ↑
-Padrão:    A B C D
-           ↑ ↑ ↑ ↑
+Texto:  ... A D W A C D ...
+                    ↑ ↑
+Padrão:     C D A B C D
+                    ↑ ↑
           (Falha) (Match)
 ```
 
 Aqui, temos:
-*   Um **mau caractere**: W (do texto, que não bateu com B do padrão).
+*   Um **mau caractere**: A (do texto, que não bateu com B do padrão).
 *   Um **bom sufixo**: CD (a parte do padrão que coincidiu).
 
 A Heurística do Mau Caractere nos daria um salto baseado na posição do W dentro do padrão ABCD.
@@ -430,7 +426,7 @@ A Heurística do Bom Sufixo nos daria um salto baseado na próxima ocorrência d
 
 Qual salto escolher?
 
-A resposta é simples e focada na eficiência: **escolha o maior salto!**
+A resposta é simples e focada na eficiência: **escolha o maior salto!** Nesse caso, o bom sufixo nos permite um salto maior.
 
 O algoritmo Boyer-Moore calcula o deslocamento sugerido por *ambas* as heurísticas e aplica aquele que mover o padrão mais para a direita. O objetivo é sempre avançar o máximo possível pelo texto com segurança, pulando o maior número de comparações desnecessárias.
 
@@ -441,31 +437,16 @@ salto_final = max(salto_mau_caractere, salto_bom_sufixo)
 
 ??? Decida o Salto (Atividade 9)
 
-Considere o passo 4 do exemplo completo anterior:
+Um desafio simples para ver se você entendeu, qual heurística garante mais saltos no exemplo abaixo?
+(Pense apenas na primeira iteração!)
 
-```plaintext
-Texto:  H E R E _ I S _ A _ S I M P L E _ E X A M P L E
-                                  ↑
-Padrão:             E X A M P L E
-                                  ↑
-```
-Falha: I (texto) vs A (padrão).
-
-*   Mau Caractere (I): Salto calculado = 3.
-*   Bom Sufixo (MPLE): Salto calculado = 3 (baseado no prefixo E).
-
-Qual seria o salto_final aplicado pelo algoritmo?
+![](AT9.0.png)
 
 ::: Gabarito
 
-salto_final = max(salto_mau_caractere, salto_bom_sufixo)
-salto_final = max(3, 3) = 3
+Bom Sufixo = "AB", esse sufixo se repete no padrão, e nos permite fazer 2 saltos, mas essa é a melhor opção? 
 
-O algoritmo saltaria 3 posições.
-
-**Outro cenário:** E se o Mau Caractere sugerisse salto 2 e o Bom Sufixo sugerisse salto 5?
-
-salto_final = max(2, 5) = 5. O algoritmo escolheria o salto maior (5).
+Mau Caractere = "F", esse caractere aparece denovo no padrão, e ele nos permite fazer 3 saltos, sendo a melhor opção!
 
 :::
 
