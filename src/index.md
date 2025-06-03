@@ -1,496 +1,681 @@
-Algoritmo de Boyer-Moore para Busca em Texto
+# Algoritmo de Boyer-Moore: Desvendando a Busca Rápida em Textos
 ======
 
-Introdução
+## 1. Introdução: A Arte de Encontrar Agulhas em Palheiros Digitais
 ---------
 
-Buscar padrões em textos é algo fundamental em várias áreas da computação. Em um cenário onde lidamos com enormes quantidades de dados o tempo todo, ter algoritmos rápidos e eficientes para fazer esse tipo de busca é essencial. Um dos mais conhecidos e eficazes é o algoritmo de Boyer-Moore, criado em 1977 por Robert S. Boyer e J Strother Moore. Ele se destaca por ser um dos mais rápidos para encontrar padrões em textos, principalmente quando o conjunto de caracteres é grande e o padrão a ser buscado é longo.
+Você já parou para pensar como o seu computador ou celular encontra uma palavra específica em um documento gigantesco em questão de segundos? Ou como um site de busca consegue vasculhar a imensidão da internet para trazer exatamente a informação que você procura? Por trás dessa "mágica", existe muita ciência da computação e algoritmos inteligentes trabalhando a todo vapor.
 
-Neste Handout, vamos explorar como esse algoritmo funciona, por que ele é tão eficiente, e como ele consegue ser, até hoje, uma das melhores opções para buscas rápidas em grandes volumes de dados. Prepare-se para conhecer uma verdadeira obra-prima da computação.
+Buscar por padrões – sejam eles palavras, frases ou sequências específicas de caracteres – dentro de grandes volumes de texto é uma tarefa fundamental no mundo digital. Fazemos isso o tempo todo, desde o simples "Ctrl+F" (ou "Cmd+F") até operações complexas em bancos de dados, análise de DNA ou sistemas de detecção de vírus.
 
+Imagine que você tem um livro com milhares de páginas e precisa encontrar todas as vezes que um nome específico aparece. Você poderia ler o livro do início ao fim, palavra por palavra, mas isso levaria uma eternidade, certo? Precisamos de métodos mais espertos e rápidos!
 
-O problema de busca de padrões
+É aqui que entram os algoritmos de busca em texto. Existem várias maneiras de resolver esse problema, algumas mais simples, outras incrivelmente eficientes. Neste handout, vamos embarcar em uma jornada para conhecer um dos algoritmos mais célebres e eficientes para essa tarefa: o **Algoritmo de Boyer-Moore**.
+
+Criado por Robert S. Boyer e J Strother Moore em 1977, esse algoritmo revolucionou a forma como realizamos buscas em texto, introduzindo ideias muito inteligentes que permitem "saltar" grandes trechos do texto, economizando um tempo precioso. Mesmo décadas depois, ele continua sendo uma referência de velocidade e eficiência.
+
+Prepare-se para descobrir os segredos por trás dessa ferramenta poderosa. Vamos explorar, passo a passo e de forma didática, como o Boyer-Moore funciona, por que ele é tão rápido e como suas ideias podem nos inspirar a pensar de forma mais inteligente sobre como resolver problemas computacionais. Vamos começar?
+
+## 2. O Problema da Busca em Texto: Onde Está Wally?
 ---------
 
-Basicamente, o objetivo é encontrar um padrão de caracteres dentro de um texto maior.
+Antes de mergulharmos nas soluções inteligentes, vamos entender bem qual é o desafio. O problema da **busca de padrões em texto** (ou *string matching*, em inglês) é bem direto:
 
-Isso pode acontecer, por exemplo, quando:
+**Dado um texto (T) e um padrão (P), queremos encontrar todas as ocorrências (ou a primeira ocorrência) do padrão P dentro do texto T.**
 
-* você usa **Ctrl + F** para procurar uma palavra em um documento;
-* um antivírus tenta identificar trechos suspeitos em um arquivo;
-* buscadores na internet procuram páginas com as palavras que você digitou.
+Parece simples, não é? Mas pense nas dimensões que isso pode tomar:
 
-O desafio está em fazer isso de forma rápida e eficiente, principalmente quando os textos são longos ou quando há muitos dados para analisar.
+*   **Texto (T):** Pode ser qualquer sequência de caracteres. Desde uma frase curta, um parágrafo, um livro inteiro (como "Guerra e Paz"), o código genético de um organismo, o código-fonte de um programa gigante, ou até mesmo todo o conteúdo de um site.
+*   **Padrão (P):** É a sequência específica que estamos procurando. Pode ser uma única letra, uma palavra ("casa"), uma frase ("ser ou não ser"), uma sequência numérica ("12345"), ou um trecho de código (`if (x > 0)`).
 
-``` py 
-texto = "Exemplo que o digão usou"
-padrao = "digão"
-print(padrao in texto)  
-```
+**Exemplos do Dia a Dia:**
 
-Antes de explorarmos o algoritmo de Boyer-Moore, vamos tentar fazer nosso proprio codigo de busca!
+*   **Ctrl+F / Cmd+F:** Quando você aperta essas teclas no seu navegador ou editor de texto para encontrar uma palavra, está resolvendo exatamente esse problema.
+*   **Busca em Sites:** Motores de busca como Google ou DuckDuckGo precisam encontrar bilhões de páginas que contenham as palavras que você digitou (o padrão) dentro de um "texto" gigantesco (a internet).
+*   **Editores de Código:** Programadores frequentemente buscam por nomes de variáveis, funções ou trechos específicos de código.
+*   **Biologia Computacional:** Cientistas buscam por sequências específicas de genes (padrões) dentro de longas cadeias de DNA (texto).
+*   **Antivírus:** Programas de segurança procuram por "assinaturas" de vírus (padrões) dentro dos arquivos do seu computador (texto).
 
+??? Para Refletir (Atividade 1)
 
-??? Exercicio 1
-
-Faca um codigo em C que percorre um texto, busca um padrao especifico e devolve o indice desse padrao.
-(Faca de maneira simples, pense como voce pode fazer loops que vao checando cada caracter)
+Pense em outras situações do seu dia a dia ou de áreas que você conhece onde a busca por padrões em texto é importante. Onde mais você acha que essa "habilidade" computacional é utilizada?
 
 ::: Gabarito
 
-```C
-int buscar_padrao(char *texto, char *padrao) {
-    int i = 0;
-    int j = 0;
-    int len_texto = strlen(texto);
-    int len_padrao = strlen(padrao);
+Algumas ideias:
 
-    for (i = 0; i <= len_texto - len_padrao; i++) {
-        for (j = 0; j < len_padrao; j++) {
-            if (texto[i + j] != padrao[j]) {
-                break;
-            }
-        }
-        if (j == len_padrao) {
-            printf("Padrão '%s' encontrado na posição %d\n", padrao, i);
-            return i;
-        }
-    }
+*   **Processamento de Linguagem Natural:** Identificar nomes de pessoas, lugares ou organizações em notícias.
+*   **Verificação de Plágio:** Comparar um documento com uma base de dados para encontrar trechos copiados.
+*   **Análise de Logs:** Encontrar mensagens de erro específicas em arquivos de log de sistemas.
+*   **Redes Sociais:** Filtrar conteúdo ou encontrar posts que mencionem um determinado termo.
+*   **Música:** Identificar plágio em melodias (representadas como sequências).
+*   **Edição de Vídeo:** Buscar por cenas específicas baseadas em legendas ou metadados.
 
-    printf("Padrão '%s' não encontrado no texto.\n", padrao);
-    return -1;
-}
-```
-
-No codigo acima, nos apenas procuramos o primeiro caractero do nosso padrao e assim que ele eh achado, olhamos os caracteres
-seguintes ate que algum deles seja diferente do padrao, caso nao seja, achamos nosso padrao.
+Percebe como é uma tarefa onipresente?
 
 :::
 
 ???
 
-O codigo feito eh funcional, mas como sabemos, ser funcional nao eh a unica coisa que buscamos ao fazer um codigo, precisamos pensar em velocidade, estabilidade, entre outros aspectos. 
+O grande desafio, como mencionamos, é fazer essa busca de forma **eficiente**. Se o texto for muito grande (pense em terabytes de dados) ou se precisarmos fazer muitas buscas repetidamente, um método lento pode se tornar um gargalo enorme. Precisamos de algoritmos que sejam rápidos e inteligentes!
 
-??? Exercicio 2
-Determine a complexidade do codigo do nosso codigo e análise qual é o pior e o melhor caso no tempo
+No próximo capítulo, vamos conhecer a abordagem mais intuitiva, porém nem sempre a mais rápida, para resolver esse problema: o algoritmo de força bruta.
 
-::: Gabarito 
+## 3. A Primeira Tentativa: O Algoritmo de Força Bruta (Ingênuo)
+---------
 
-**Passo 1: Laço externo**
+Ok, já entendemos o problema. Qual seria a forma mais direta e óbvia de encontrar o padrão P dentro do texto T?
 
-A variável $i$ começa em 0 e é incrementada até ` len_texto - len_padrao`.  
-Ou seja, são feitas $n - m + 1$ iterações no pior caso, onde:
+A ideia mais simples, que provavelmente ocorreria a qualquer um de nós, é a seguinte:
 
-- $n$ = tamanho do texto  
-- $m$ = tamanho do padrão
+1.  **Alinhar:** Coloque o padrão P no início do texto T.
+2.  **Comparar:** Verifique, caractere por caractere (da esquerda para a direita), se o padrão P corresponde ao trecho do texto T onde ele está alinhado.
+3.  **Encontrou?** Se todos os caracteres baterem, ótimo! Encontramos uma ocorrência do padrão. Registre a posição.
+4.  **Não Encontrou?** Se algum caractere não bater, pare a comparação para essa posição.
+5.  **Deslizar:** Mova o padrão P **uma posição** para a direita no texto T.
+6.  **Repetir:** Volte ao passo 2 e continue comparando até que o padrão P tenha deslizado por todo o texto T.
 
-**Passo 2: Laço interno**
+Essa abordagem é chamada de **algoritmo de força bruta** ou **algoritmo ingênuo**. Ele testa *todas* as posições possíveis do texto onde o padrão poderia começar.
 
-Para cada valor de $i$, o laço interno compara o padrão com a parte correspondente do texto.
+??? Mão na Massa (Atividade 2)
 
-- Ele pode executar até $m$ comparações (se todos os caracteres coincidirem).
-- Se houver uma diferença logo no início, o laço interno pode terminar após uma única comparação(caso bom).
+Vamos aplicar o algoritmo de força bruta manualmente. Encontre o padrão P = "GATO" no texto T = "UMGATOSENTADONOGATO".
+Mostre cada alinhamento e comparação, indicando onde falha ou se encontra o padrão.
 
+**Texto:** U M G A T O S E N T A D O N O G A T O
 
-**Passo 3: Total de comparações**
+**Alinhamento 1:**
+```pseudocode
+Texto:  U M G A T O S E N T A D O N O G A T O
+        ↑
+Padrão: G A T O
+        ↑
+```
+Comparação: U != G. Falha.
 
-No pior caso, o laço interno executa $m$ comparações para cada uma das $n - m + 1$ posições do texto.  
-Isso gera um total de:
+**Alinhamento 2:**
+```pseudocode
+Texto:  U M G A T O S E N T A D O N O G A T O
+          ↑
+Padrão:   G A T O
+          ↑
+```
+Comparação: M != G. Falha.
 
-$$(n - m + 1) \cdot m \approx n \cdot m$$
+**Continue você!** Quais são os próximos passos? Onde o padrão é encontrado?
 
-**Complexidade no tempo**
+::: Gabarito
 
-
-- **Pior caso:** $O(n \cdot m)$
-- **Melhor caso:** $O(n)$, se sempre houver incompatibilidade na primeira comparação
-
-
+:AT2
 
 :::
 
 ???
 
+**Pseudocódigo Simples:**
 
-!!! Aviso
-Chegamos à seção crucial para compreender o coração do algoritmo de Boyer-Moore!
-Aqui, exploraremos as duas heurísticas principais que tornam o algoritmo tão eficiente: a **heurística do mau caractere** e a **heurística do bom sufixo**.
-!!!
+```pseudocode
+funcao busca_forca_bruta(texto T, padrao P):
+  n = tamanho de T
+  m = tamanho de P
 
+  // Percorre todas as posições possíveis de início no texto
+  para i de 0 até n - m:
+    // Compara o padrão com o trecho do texto a partir de i
+    j = 0
+    enquanto j < m e T[i + j] == P[j]:
+      j = j + 1
+    
+    // Se j chegou ao fim do padrão, encontramos!
+    se j == m:
+      imprimir "Padrão encontrado na posição " + i
+      // Se quiser só a primeira ocorrência, pode parar aqui (retornar i)
 
-Heurística do Mau Caractere 
-------------------------
-
-Antes de explicar a heuíristica, vamos tentar melhorar nosso codigo anterior para irmos entendendo melhor de onde vem essa ideia do mau caractere.
-
-??? Exercicio 3
-Primeiro, pense o seguinte, se voce tivesse que verificar se uma palavra de um texto é igual a palavra que voce esta procurando, seria mais EFICIENTE começar do inicio da palavra ate o final, ou começar do final(esquerda para direita)?
-
-Dica: pense qual seria o proximo passo se o caractere que voce esta checando estiver errado.
-
-::: Gabarito
-Começar pelo final é a forma mais eficiente, pois dessa forma voce consegue fazer saltos maiores e ignorar palavras inuteis. Se voce estiver porcurando uma palavra de oito letras e a ultima ja estiver errada, voce pode ignorar as outras sete letras e pular para o proximo intervalo de oito letras, enquanto que se voce estivesse procurando do comeco ao fim, o unico salto possivel seria um(para a proxima letra).
-
-:::
-
-???
-
-??? Exercicio 4
-Agora que voce entendeu uma forma mais eficiente de procurar uma palavra num texto, vamos melhorar nosso codigo!
-
-Aprimore o codigo do exercicio 1 para que ele busque pela ultima letra.
-
-::: Gabarito
-Voce deve ter chegado em algo assim
-
-```C
-int buscar_padrao_otimizado(char *texto, char *padrao) {
-    int len_texto = strlen(texto);
-    int len_padrao = strlen(padrao);
-
-    // Verificar se o padrão é maior que o texto
-    if (len_padrao > len_texto) {
-        printf("Padrão '%s' não encontrado no texto.\n", padrao);
-        return -1;
-    }
-
-    int i = 0;
-
-    while (i <= len_texto - len_padrao) {
-        int j = len_padrao - 1;
-
-        // Verificar o intervalo da direita para a esquerda
-        while (j >= 0 && texto[i + j] == padrao[j]) {
-            j--;
-        }
-
-        // Se j < 0, o padrão foi encontrado
-        if (j < 0) {
-            printf("Padrão '%s' encontrado na posição %d\n", padrao, i);
-            return i;
-        }
-
-        // Pular para o próximo intervalo
-        i += len_padrao;
-    }
-
-    printf("Padrão '%s' não encontrado no texto.\n", padrao);
-    return -1;
-}
+  // Se o loop terminar sem encontrar, o padrão não está no texto
+  // (Opcional: imprimir "Padrão não encontrado")
 ```
 
-Iterando dessa forma podemos fazer saltos muito maiores no nosso texto, mas devemos ter cuidado!
-Nem sempre pular o intervalo inteiro da palavra é o passo certo, por isso a heurística do mal caractere nem sempre pula esse intervalo, a ideia esta mais relacionado a encaixar o padrão no texto, isso ficará mais claro nos próximos passos.
-::: 
+**Qual o Problema Dessa Abordagem?**
+
+O algoritmo de força bruta é fácil de entender e implementar, e funciona! Mas... ele pode ser **lento**, especialmente em alguns casos.
+
+??? Pense Rápido: O Pior Cenário (Atividade 3)
+
+Imagine um texto formado por muitos 'A's seguidos e um padrão também com muitos 'A's, mas terminando com um 'B'. Por exemplo:
+
+Texto T = "AAAAAAAAAAAAAAAAAB" (n=18)
+Padrão P = "AAAAAB" (m=6)
+
+Quantas comparações o algoritmo de força bruta faria *no total* para determinar que o padrão não está presente até a última posição possível?
+
+::: Gabarito
+
+O padrão pode ser alinhado em `n - m + 1 = 18 - 6 + 1 = 13` posições.
+
+*   Nas primeiras 12 posições (índices 0 a 11), o padrão "AAAAAB" será comparado com "AAAAAA". Ele fará 6 comparações em cada uma, falhando na última.
+*   Na 13ª posição (índice 12), o padrão "AAAAAB" será comparado com "AAAAAB". Ele fará 6 comparações e encontrará o padrão.
+
+Se estivéssemos procurando *todas* as ocorrências, ou se o texto fosse "AAAAAAAAAAAAAAAAAA" (sem o B final), ele faria 6 comparações em cada uma das 13 posições.
+Total de comparações no pior caso (sem encontrar): `(n - m + 1) * m = 13 * 6 = 78` comparações.
+
+Isso ilustra a complexidade O(n*m). Se n e m forem grandes, o número de comparações explode!
+
+:::
 
 ???
 
-Essa heurística é usada quando o padrão não bate com o texto durante a comparação.
-Em vez de avançar o padrão só uma posição (como na Brute Force), o Boyer-Moore tenta "pular" mais posições com base no caractere que causou o erro.
+Essa potencial lentidão do algoritmo de força bruta nos motiva a buscar estratégias mais inteligentes. Como podemos evitar tantas comparações desnecessárias? Como podemos "saltar" pelo texto de forma mais eficiente quando encontramos uma incompatibilidade?
 
-**Ou seja**
+É exatamente isso que o algoritmo de Boyer-Moore faz, usando algumas ideias brilhantes que conheceremos a seguir!
 
-Se um caractere do texto não bate com o do padrão, o algoritmo pergunta:
-“Esse caractere aparece em outro lugar do padrão?”
+## 4. Indo Além do Óbvio: A Busca por Saltos Inteligentes
+---------
 
-* Se sim, move o padrão até alinhar com essa outra ocorrência.
+Vimos que o algoritmo de força bruta, apesar de funcional, pode gastar muito tempo verificando cada posiçãozinha do texto, mesmo quando parece óbvio que o padrão não vai encaixar ali. A grande sacada do algoritmo de Boyer-Moore é justamente pensar: **"Será que podemos usar a informação das incompatibilidades (mismatches) para dar saltos maiores e mais inteligentes pelo texto?"**
 
-* Se não, pode pular o padrão todo além desse caractere.
+Em vez de apenas deslizar o padrão teimosamente uma posição para a direita após uma falha, o Boyer-Moore analisa *por que* a comparação falhou e usa essa informação para decidir o quão longe ele pode pular com segurança, sem correr o risco de perder uma possível ocorrência do padrão.
+
+**A Mudança de Perspectiva: Comparando de Trás para Frente**
+
+Uma das primeiras ideias que Boyer e Moore tiveram foi mudar a direção da comparação dentro de cada alinhamento. Enquanto a força bruta compara o padrão com o texto da esquerda para a direita, o Boyer-Moore faz o oposto: ele compara **da direita para a esquerda**, começando pelo último caractere do padrão.
+
+```plaintext
+Texto: ... C A B ...
+               ↑
+Padrão:    X Y Z
+               ↑  <-- Começa a comparar aqui!
+```
+
+??? Por que da Direita para a Esquerda? (Atividade 4)
+
+Pode parecer estranho no início, mas pense um pouco: imagine que você está procurando a palavra `P = "TESTE"` no texto `T = "... ABCDE ..."`. Se você comparar da direita para a esquerda, a primeira comparação é E (texto) vs E (padrão). Bateu! A segunda é D vs T. Falhou!
+
+Agora, imagine que você comparou da esquerda para a direita. A vs T. Falhou!
+
+Qual falha (a da direita para a esquerda ou a da esquerda para a direita) te deu mais informação útil sobre o *texto* naquele ponto?
+
+::: Gabarito
+
+A falha da direita para a esquerda (D vs T) te diz que o caractere D está presente no texto naquela posição. A falha da esquerda para a direita (A vs T) te diz que o caractere A está presente.
+
+A informação sobre o caractere D (obtida comparando da direita para a esquerda) é potencialmente mais útil para o Boyer-Moore. Se D não existir no padrão "TESTE" (e não existe!), a heurística do mau caractere já pode sugerir um salto maior. Comparar da direita para a esquerda em sí não é mais rápido, mas é mais útil para o nosso algoritmo.
+
+:::
+
+???
+
+**As Ferramentas Mágicas: Heurísticas**
+
+Para decidir o tamanho desses saltos inteligentes, o Boyer-Moore utiliza duas regras principais, chamadas **heurísticas**. Uma heurística, em ciência da computação, é como uma "regra de bolso" ou um atalho inteligente que ajuda a encontrar uma boa solução rapidamente, mesmo que não seja garantido que seja a *melhor* solução *sempre* (embora, no caso do Boyer-Moore, as heurísticas sejam muito eficazes!).
+
+As duas heurísticas do Boyer-Moore são:
+
+1.  **Heurística do Mau Caractere (Bad Character Heuristic):** Foca no caractere do *texto* que causou a falha na comparação.
+2.  **Heurística do Bom Sufixo (Good Suffix Heuristic):** Foca na parte do *padrão* que *coincidiu* com o texto antes da falha ocorrer.
 
 !!! Atenção
-O padrão é comparado com o texto da direita para a esquerda. Quando uma letra do texto não corresponde à letra do padrão, o algoritmo usa a **heurística do mau caractere**
+Estamos entrando no coração do algoritmo! As próximas seções vão detalhar cada uma dessas heurísticas com exemplos visuais. Entendê-las bem é a chave para dominar o Boyer-Moore.
 !!!
 
+Vamos começar explorando a primeira e talvez mais intuitiva delas: a Heurística do Mau Caractere.
 
-??? Exemplo 1
+## 5. Heurística 1: O Dedo-Duro do Mau Caractere
+---------
 
-Texto: "ABCDEF"
+Vamos começar com a primeira regra inteligente do Boyer-Moore: a **Heurística do Mau Caractere**. O nome pode parecer engraçado, mas a ideia é genial!
 
-Padrão: "CDE"
+Lembre-se que comparamos o padrão com o texto da direita para a esquerda. Quando encontramos um caractere no **texto** que *não bate* com o caractere correspondente no **padrão**, esse caractere do texto é o nosso "mau caractere". Ele é o "dedo-duro" que nos diz que o padrão não pode estar naquela posição atual.
 
-Vamos comparar da direita pra esquerda:
+A heurística do mau caractere usa essa informação para responder à seguinte pergunta:
 
-```plaintext
-Texto:  A B C D E F
-               ↑
-Padrão:     C D E
-               ↑
-```
+**"Ok, a comparação falhou por causa desse 'mau caractere' no texto. Onde é a próxima posição *segura* para a qual podemos deslizar o padrão, levando em conta esse caractere?"**
 
-1ª comparação:
-Letra do texto: F
-Letra do padrão: E
-→ Não bate!
+A ideia é alinhar o padrão de forma que o "mau caractere" do texto coincida com a *última ocorrência* (mais à direita) desse mesmo caractere *dentro do padrão*. Se o mau caractere nem existir no padrão, podemos pular o padrão inteiro para depois dele!
 
-**Agora é aplicado a heurística:**
+Vamos ver isso com calma e exemplos.
 
-* O caractere que causou erro foi o F.
+**Cenário 1: O Mau Caractere NÃO Existe no Padrão**
 
-* O F existe dentro do padrão "CDE"?  **Não existe**.
+Este é o caso mais simples e que geralmente permite os maiores saltos.
 
-Então, podemos mover o padrão inteiro para a direita do F, porque não faz sentido tentar comparar o padrão onde o F está.
+*   **Texto T:** `... U M G A T O` (Onde A é o mau caractere)
+*   **Padrão P:** `...  T O` (Mismatch entre A(Texto) e T(Padrão))
 
-**Resultado:** o padrão é deslocado 3 posições à frente!
+Se o caractere "A' (o mau caractere do texto) **não aparece em lugar nenhum** dentro do padrão "p", então não há nenhuma chance do padrão se alinhar corretamente com o texto naquela região que inclui o "A". Podemos, com segurança, deslizar o padrão inteiro para a direita, posicionando seu início logo *após* o mau caractere "A".
 
+??? Pratique o Salto (Atividade 5)
 
-???
+Considere o seguinte texto e padrão, quantos saltos serao necessarios para encontrar nosso padrão? Além disso, qual seria a diferenca de iteracoes se compararmos com o brute force visto(comece comparando D e M):
 
+![](AT5.1.png)
 
-??? Exemplo 2
+::: Gabarito
 
-Texto: "ABCABCABC"
+:AT5
 
-Padrão: "CAB"
+Como não existe M no padrão, podemos saltar direito para o próximo intervalo do texto.
+
+O Brute Force anterior levaria 10 iterações para achar o primeiro match, ja utilizando nossa heurística podemos encontrar esse match em 4 pulos.
 
 
-Alinhamento dos caracteres
-
-```plaintext
-Texto:    A B C A B C A B C
-                      ↑
-Padrão:          C A B
-                      ↑
-```
-
-1ª comparação:
-Letra do texto: C
-Letra do padrão: B
-→ Não bate!
-
-**Caractere do erro:** C
-
-C aparece na primeira letra do padrão.
-
-Então, podemos mover o padrão de forma que o C do texto se alinhe com o C do padrão.
-
-**Resultado**: padrão anda 2 posições para a direita.
+:::
 
 ???
 
-**Qual a Vantagem?**
-Em vez de comparar o padrão com cada posição do texto uma por uma, o algoritmo usa o caractere que causou a falha para decidir quantas posições pode pular com segurança. Isso permite que ele avance mais rápido no texto, economizando tempo e evitando comparações desnecessárias.
+**Cenário 2: O Mau Caractere EXISTE no Padrão**
 
-Heurística do Bom Sufixo  
-------------------------
+Agora, e se o mau caractere do texto *existir* dentro do padrão?
 
-Essa é a segunda ideia principal do nosso algoritmo. Ela entra em ação quando parte do padrão **bate com o texto**, mas a comparação falha logo **antes do final**.
+*   **Texto (T):** `... X ...` (Onde X é o mau caractere)
+*   **Padrão (P):** `... W X Y Z` (Comparando Z com X, e `X != Z`)
 
-Em vez de descartar totalmente o que já bateu, o Boyer-Moore tenta **reaproveitar** esse pedaço que deu certo, chamado de **"bom sufixo"**.
+Neste caso, sabemos que o `X` do texto causou a falha. A heurística diz: encontre a **última ocorrência** (a mais à direita) do caractere `X` *dentro do padrão P*. Então, deslize o padrão para a direita de forma que essa última ocorrência no padrão se alinhe com o `X` do texto.
 
-**Ou seja**
+Por que a última ocorrência? Para garantir que não pulemos demais e percamos uma possível correspondência.
 
-Se uma parte do final do padrão corresponde ao texto, mas o caractere anterior causa erro, o algoritmo pergunta:
-“Esse sufixo que bateu aparece em outro lugar dentro do padrão?”
+??? Pratique o Salto (Atividade 6)
 
-* Se sim, move o padrão até alinhar esse sufixo com essa outra ocorrência.
+Texto T = `... B A N A N A ...`
+Padrão P = `C A N T A`
 
-* Se não, tenta alinhar com algum sufixo menor que também seja válido, ou então move o padrão inteiro para frente.
+Alinhamento:
+```
+Texto:  ... B A N A N A ...
+                 ↑
+Padrão:       C A N T A
+                 ↑
+```
+Comparação: `N` (texto) vs `A` (padrão). Falha! Mau caractere = `N`.
 
-!!! Atenção  
-A comparação ainda é feita da direita para a esquerda. Se uma parte do final do padrão bateu antes do erro, o algoritmo usa a **heurística do bom sufixo** para evitar trabalho repetido.  
+O caractere `N` existe no padrão `CANTA`? Se sim, qual a posição da sua *última* ocorrência (contando de 0)? Qual seria o salto sugerido pela Heurística do Mau Caractere?
+
+::: Gabarito
+
+Sim, o caractere `N` existe no padrão `CANTA`.
+A última (e única) ocorrência de `N` está na posição 2 (`C A [N] T A`).
+
+A falha ocorreu na comparação do último caractere do padrão (posição `j=4`).
+O salto é calculado como: `salto = j - ultima_posicao(N) = 4 - 2 = 2`.
+
+Deslizamos o padrão 2 posições para a direita, de forma que o `N` do padrão (posição 2) se alinhe com o `N` do texto (que causou a falha).
+
+Novo Alinhamento:
+```
+Texto:  ... B A N A N A ...
+                   ↑
+Padrão:         C A N T A
+                   ↑
+```
+
+:::
+
+???
+
+**Calculando o Salto (Pré-processamento)**
+
+Para aplicar essa heurística rapidamente, o algoritmo Boyer-Moore primeiro faz um **pré-processamento** do padrão. Ele cria uma tabela (geralmente chamada de tabela do mau caractere ou *bad character table*) que armazena, para cada caractere possível no alfabeto, a posição da sua última ocorrência no padrão. Se um caractere não estiver no padrão, podemos armazenar -1 ou um valor que indique isso.
+
+!!! Reforçando a Tabela
+Criar essa tabela *antes* de começar a busca é crucial para a velocidade do Boyer-Moore. Ela permite descobrir o salto do mau caractere em tempo constante (O(1)) durante a fase de busca.
 !!!
 
-??? Exemplo 1
+| Caractere | Última Posição em `EXAMPLE` |
+| :-------- | :------------------------ |
+| E         | 6                         |
+| L         | 5                         |
+| P         | 4                         |
+| M         | 3                         |
+| A         | 2                         |
+| X         | 1                         |
+| ... (outros) | -1                       |
 
+Quando ocorre um mismatch com um mau caractere `X` do texto na posição `k` do texto, e o caractere do padrão na posição `j` (lembre-se, `j` diminui da direita para a esquerda), o salto é calculado como: `salto = max(1, j - ultima_posicao(X))`. Usamos `max(1, ...)` para garantir que o padrão sempre avance pelo menos uma posição.
 
-Quando ocorre um **mismatch** após alguns caracteres do padrão terem casado com o texto, procuramos alinhar o maior sufixo casado com sua próxima ocorrência dentro do próprio padrão. Isso permite pular múltiplas posições, economizando comparações.
+Essa heurística sozinha já torna o Boyer-Moore muito mais rápido que a força bruta em muitos casos. Mas ainda há outra heurística poderosa que podemos usar, especialmente quando uma parte do padrão *já coincidiu* com o texto antes da falha. Vamos conhecê-la!
 
----
+## 6. Heurística 2: Aproveitando o "Bom Sufixo"
+---------
 
+A Heurística do Mau Caractere é ótima, mas e se a comparação falhar *depois* que já tivemos alguns acertos? Ou seja, começamos a comparar da direita para a esquerda, alguns caracteres bateram, mas aí... um deles falhou.
 
-### Primeira comparação:
+**Exemplo Rápido:**
 
-```plaintext
-                    t---t
-Texto:  C G T G C C T A C T TACTTACTTACTTACGCGAA
-                  X ↑ ↑ ↑
-Padrão:       C T T A C T T A C
-                        X ↑ ↑ ↑
+```
+Texto:  ... A B C D E ...
+             ↑ ↑ ↑
+Padrão:    X Y B C D
+           ↑ ↑ ↑ ↑ ↑
+           (Falha aqui!) (Match) (Match) (Match)
 ```
 
-C bate com C, A bate com A e T bate com T.  
-No entanto, há um **mismatch** na quarta comparação: **T (do padrão)** ≠ **C (do texto)**.
+Neste caso, os caracteres `B`, `C` e `D` do padrão coincidiram com o texto. Esse trecho que deu match, `BCD`, é o que chamamos de **"Bom Sufixo"**. Seria um desperdício simplesmente ignorar essa informação e usar apenas o mau caractere (`A` do texto vs `Y` do padrão), não acha?
 
-➡ O sufixo que casou foi `TAC`. Esse é o bom sufixo(sera chamado de pequeno t), vamos destacar ele com t tracejado, conforme o algoritmo trabalha esse "pequeno t" aumenta.
+A **Heurística do Bom Sufixo** entra em cena justamente para aproveitar essa correspondência parcial. A ideia é:
 
-🔍 Procuramos o sufixo `TAC` dentro do padrão para encontrar sua próxima ocorrência.
+**"Já que encontramos esse 'bom sufixo' (`BCD`) no texto, será que existe *outra ocorrência* desse mesmo sufixo ou de parte dele *dentro do próprio padrão*? Se sim, podemos deslizar o padrão para alinhar essa outra ocorrência com o trecho que já sabemos que bateu no texto."**
 
-```plaintext
-Padrão:       C T T A C T T A C
-                  ↑ ↑ ↑
+Vamos analisar os cenários possíveis:
+
+**Cenário 1: O Bom Sufixo Aparece Novamente no Padrão**
+
+Este é o caso ideal. Se o sufixo que deu match (`t`) aparece novamente *exatamente igual* em outra posição dentro do padrão (e não sobrepondo a ocorrência original), podemos deslizar o padrão para alinhar essa segunda ocorrência (a mais à direita possível que não seja a original) com o `t` que encontramos no texto.
+
+??? Identifique o Bom Sufixo e o Salto (Atividade 7)
+
+Texto T = `ABABDABAC`
+Padrão P = `DABAC`
+
+Alinhamento:
 ```
-
-Achamos!
-Agora vamos "encaixar" esse sufixo no nosso pequeno t.
-
----
-
-### Segunda comparação:
-
-```plaintext
-                     t-----------t 
-Texto:   C G T G C C T A C T T A C T T A C T T A C T T A CGCGAA
-                   X ↑ ↑ ↑ ↑ ↑ ↑ ↑
-Padrão:          C T T A C T T A C
-                   X ↑ ↑ ↑ ↑ ↑ ↑ ↑
+Texto:  A B A B D A B A C
+              ↑ ↑ ↑ ↑
+Padrão:     D A B A C
+            ↑ ↑ ↑ ↑ ↑
+           (Falha) (Match) (Match) (Match)
 ```
+1. Comparações: `C==C`, `A==A`, `B==B`. Match!
+2. Falha: `B` (texto) vs `A` (padrão). Falhou!
 
-Tentamos novamente. Ainda há um **mismatch** posterior.
-Aqui é um pouco mais dificil de visualizar o proximo passo, ja que nosso pequeno t não se encaixaria mais no nosso padrão, mas temos temos uma solução!
+Qual é o **Bom Sufixo** (`t`)? Ele aparece novamente dentro do padrão `DABAC`? Se sim, qual seria o salto sugerido pela Heurística do Bom Sufixo (Cenário 1)?
 
-A sacada aqui é que há um prefixo do padrão que se encaixa no sufixo do pequeno t.
+::: Gabarito
 
-```plaintext
-                     t-----------t 
-Texto:   C G T G C C T A C T T A C T T A C T T A C T T A CGCGAA
-                         ↑ ↑ ↑ ↑ ↑
+O Bom Sufixo (`t`) é `BAC`.
 
-Padrão:          C T T A C T T A C
-                 ↑ ↑ ↑ ↑ ↑ 
-                 (prefixo)
+Verificamos se `BAC` aparece novamente *antes* no padrão `DABAC`. Não, não aparece.
+
+Neste caso, o Cenário 1 não se aplica diretamente. Teríamos que ir para o Cenário 2.
+
+**Vamos ajustar o exemplo para o Cenário 1 funcionar:**
+
+Texto T = `ABCABCBAC`
+Padrão P = `BCBAC`
+
+Alinhamento:
 ```
-
-Agora, nos resta encaixar esse prefixo com o sufixo do texto e continuar procurando.
-
----
-
-### Terceira comparação:
-
-```plaintext
-Texto:   C G T G C C T A C T T A C T T A C T T A C T T A C G C G A A
-                         ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑
-Padrão:                  C T T A C T T A C
-                         ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑
+Texto:  A B C A B C B A C
+              ↑ ↑ ↑ ↑
+Padrão:     B C B A C
+            ↑ ↑ ↑ ↑ ↑
+           (Falha) (Match) (Match) (Match)
 ```
+1. Comparações: `C==C`, `A==A`, `B==B`. Match!
+2. Falha: `C` (texto) vs `C` (padrão). Match!
+3. Falha: `A` (texto) vs `B` (padrão). Falhou!
 
-✅ **Todas as letras do padrão casam com o texto!**
+Bom Sufixo (`t`) = `CBAC`.
 
-➡ O padrão foi encontrado na posição 10 do texto.
+O bom sufixo `CBAC` aparece novamente dentro do padrão `BCBAC`? Não.
 
----
+**Ok, vamos tentar um exemplo que funcione claramente para o Cenário 1:**
 
+Padrão P = `ABMCABM`
+Bom Sufixo (`t`) = `CABM` (Suponha que isso deu match e a falha ocorreu antes)
+
+O bom sufixo `CABM` aparece novamente no padrão `ABMCABM`? Sim, começando na posição 0 (`[CABM]CABM`).
+
+A heurística alinharia essa ocorrência (posição 0) com o bom sufixo encontrado no texto. O salto seria calculado para fazer esse alinhamento.
+
+:::
 
 ???
 
 
-Qual heurística usar?
-------------------------
-Bom, agora que você entendeu as ideias principais do algortimo, talvez tenha surgido a dúvida de qual eurística usar. 
+**Cenário 2: Um Prefixo do Padrão Coincide com um Sufixo do Bom Sufixo**
 
-A resposta é simples, a que pular mais caracteres! Como a ideia do algoritmo é sempre ser otimizado e rápido, a heurística que mais pular caracteres inúteis(mismatches) será a escolhida.
+E se o bom sufixo inteiro não se repetir dentro do padrão? A heurística ainda tenta salvar alguma coisa!
 
-??? Exercicio 2
+Ela verifica se existe um **prefixo** (começo) do padrão `P` que seja igual a um **sufixo** (final) do bom sufixo `t`. Se houver vários, escolhemos o mais longo.
 
-Portanto, para compreender melhor essa questão, vamos utilizar as duas eurísticas para resolver esse problema. Lembre-se que: é possível utilizá-las ao mesmo tempo,mas deve-se priorizar àquela que mais pulará mismatches!! Pegue um lápis e papel que vamos trabalhar (tente fazer, antes de ver os passos).
+??? Identifique Prefixo e Sufixo (Atividade 8)
 
+Padrão P = `ABRACADABRA`
+Bom Sufixo (`t`) = `ADABRA` (Suponha que isso deu match e a falha ocorreu antes)
 
-Por questão de simplicidade e alinhamento consideraremos texto = T e padrão = P
+O bom sufixo `ADABRA` se repete *exatamente* antes no padrão? Não.
 
-```plaintext        
-                      ↓
-T:    G T T A T A G C T G A T C G C G G C G T A G C G G C G A A
-        ↓              
-P:    G T A G C G G C G 
+Existe algum **prefixo** de `P` que seja igual a um **sufixo** de `t`? Qual o mais longo?
+
+*   Prefixos de P: `A`, `AB`, `ABR`, `ABRA`, `ABRAC`, ...
+*   Sufixos de t: `A`, `RA`, `BRA`, `ABRA`, `DABRA`, `ADABRA`
+
+::: Gabarito
+
+Sim, existem prefixos de P que são sufixos de t:
+*   `A` (prefixo `A`, sufixo `A`)
+*   `ABRA` (prefixo `ABRA`, sufixo `ABRA`)
+
+O mais longo é `ABRA`.
+
+A heurística do Bom Sufixo (Cenário 2) sugeriria um salto para alinhar o prefixo `ABRA` do padrão com o sufixo `ABRA` do bom sufixo encontrado no texto.
+
+:::
+
+???
+
+**Cenário 3: Nenhuma Ocorrência ou Prefixo Correspondente**
+
+Se nem o bom sufixo inteiro se repete, nem um prefixo do padrão casa com um sufixo do bom sufixo, então não temos informação útil para reutilizar. Nesse caso, a heurística do bom sufixo sugere deslizar o padrão inteiro para a direita, passando completamente pelo local do mismatch (salto de `m`, tamanho do padrão).
+
+**Calculando o Salto (Pré-processamento)**
+
+Assim como a heurística do mau caractere, a do bom sufixo também exige um pré-processamento do padrão para calcular os possíveis saltos de antemão. Isso envolve criar tabelas (mais complexas que a do mau caractere) que armazenam, para cada possível posição de falha `i` no padrão, qual seria o deslocamento correto baseado nos Cenários 1, 2 e 3.
+
+!!! Foco no Reuso
+A beleza da Heurística do Bom Sufixo é tentar **reaproveitar** o trabalho já feito (a parte que deu match) para encontrar o próximo possível alinhamento.
+!!!
+
+Agora temos duas ferramentas poderosas: a Heurística do Mau Caractere e a Heurística do Bom Sufixo. Mas qual delas usar quando ambas puderem ser aplicadas? É o que veremos a seguir!
+
+## 7. O Grande Duelo: Mau Caractere vs. Bom Sufixo
+---------
+
+Agora que conhecemos as duas heurísticas do Boyer-Moore, surge uma pergunta natural: **qual delas devemos usar quando ocorre uma falha na comparação?**
+
+Imagine a situação:
+
 ```
-Como ainda não é possível/eficiente utilizar a regra do Bom Sufixo, começaremos pela regra do Mau Caractére, identifique **onde** no padrão aparece caractere T mova-o para alinhá-lo com o texto: 
+Texto:  ... W X Y Z ...
+             ↑ ↑
+Padrão:    A B C D
+           ↑ ↑ ↑ ↑
+          (Falha) (Match)
+```
 
-::: Step 1
-```plaintext                
-                              ↓ 
-T:    G T T A T A G C T G A T C G C G G C G T A G C G G C G A A
-                    X       ↓  
-P:                  G T A G C G G C G
-```         
+Aqui, temos:
+*   Um **mau caractere**: `W` (do texto, que não bateu com `B` do padrão).
+*   Um **bom sufixo**: `CD` (a parte do padrão que coincidiu).
 
-Foi possível dar um salto de 6 posições! Agora chegamos num dilema. Qual das heurísticas usar? Pense um pouco a respeito, e tente prosseguir (Escolha aquela que der o maior salto). 
-::: 
+A Heurística do Mau Caractere nos daria um salto baseado na posição do `W` dentro do padrão `ABCD`.
+A Heurística do Bom Sufixo nos daria um salto baseado na próxima ocorrência de `CD` (ou de um prefixo que case com seu sufixo) dentro de `ABCD`.
 
-::: Step 2 
+Qual salto escolher?
 
-```plaintext
-                              ↓ t---t        
-T:    G T T A T A G C T G A T C G C G G C G T A G C G G C G A A
-                    X     X    
-P:                        G T A G C G G C G
-```     
-A melhor escolha a ser feita era a heurística do Bom sufixo, tendo em vista que foi possível pular duas posições. Para melhorar o entendimento, se tivessemos optado pela heurística do Mau Caractére pulariamos apenas um caractere e ficaria assim
+A resposta é simples e focada na eficiência: **escolha o maior salto!**
 
-```plaintext
-T:    G T T A T A G C T G A T C G C G G C G T A G C G G C G A A
-                      X   X      
-P:                        G T A G C G G C G
-```   
+O algoritmo Boyer-Moore calcula o deslocamento sugerido por *ambas* as heurísticas e aplica aquele que mover o padrão mais para a direita. O objetivo é sempre avançar o máximo possível pelo texto com segurança, pulando o maior número de comparações desnecessárias.
 
-Logo, com a escolha da heurística do **Bom Sufixo**, tente prosseguir (Dica: sempre compare o **final do padrão** ao **final do texto**).
+**Regra de Ouro:**
+`salto_final = max(salto_mau_caractere, salto_bom_sufixo)`
+
+(Lembrando que o salto mínimo é sempre 1, para garantir o progresso).
+
+??? Decida o Salto (Atividade 9)
+
+Considere o passo 4 do exemplo completo anterior:
+
+```
+Texto:  H E R E _ I S _ A _ S I M P L E _ E X A M P L E
+                                  ↑
+Padrão:             E X A M P L E
+                                  ↑
+```
+Falha: `I` (texto) vs `A` (padrão).
+
+*   Mau Caractere (`I`): Salto calculado = 3.
+*   Bom Sufixo (`MPLE`): Salto calculado = 3 (baseado no prefixo `E`).
+
+Qual seria o `salto_final` aplicado pelo algoritmo?
+
+::: Gabarito
+
+`salto_final = max(salto_mau_caractere, salto_bom_sufixo)`
+`salto_final = max(3, 3) = 3`
+
+O algoritmo saltaria 3 posições.
+
+**Outro cenário:** E se o Mau Caractere sugerisse salto 2 e o Bom Sufixo sugerisse salto 5?
+
+`salto_final = max(2, 5) = 5`. O algoritmo escolheria o salto maior (5).
+
 :::
-::: Step 3 
-```plaintext
-                                                t---------t 
-T:    G T T A T A G C T G A T C G C G G C G T A G C G G C G A A
-                    X     X               X
-P:                                        G T A G C G G C G
-```    
-Novamente, a escolha mais eficiente é a do Bom Sufixo, que permitiu um salto de **7 posições**!! Agora , volte ao **Step 2** e tente aplicar a heurística do Mau Caractére:
-:::
 
-::: Gabarito 
-
-```plaintext
-                                          ↓      
-T:    G T T A T A G C T G A T C G C G G C G T A G C G G C G A A
-                    X     X   X           ↓
-P:                            G T A G C G G C G                                
-```   
-Nesse caso, a regra do Mau caractere teria alinhado o Caracter "G" do texto com o "G" do padrão e teria dado um salto de apenas 2 posições.
-::: 
-???
-Análise de Complexidade 
-------------------------
-Chegamos ao pulo do gato! Por que usar o Boyer-Moore em vez da força bruta? A resposta está na complexidade, que faz esse algoritmo ser um verdadeiro foguete em termos de tempo e eficiência computacional. Vamos analisar cada caso e entender como ele se comporta!
-??? Melhor Caso: Complexidade Temporal: ( O(n / m) )
-
-Aqui, ( n ) é o tamanho do texto e ( m ) é o tamanho do padrão.
-O melhor caso é onde o Boyer-Moore brilha como ouro! Isso rola quando os caracteres do texto são bem diferentes dos do padrão. Se o caractere do texto não está no padrão, o algoritmo pula até ( m ) posições de uma tacada, tornando a busca sublinear e rapidíssima.
-::: Exemplo
-
-```plaintext    
-T: "AAAAAAAAAAAAAAAAAAAA"
-P: "BCDE"
-``` 
-
-Na primeira comparação, o algoritmo vê que **( T[3] = A )** não está em **( P = BCDE )**. A heurística do mau caractere manda pular **( m = 4 )** posições. Isso se repete, examinando poucos caracteres (ex.: ( **T[3], T[7], T[11]** )), e a busca acaba em cerca de ( n / m = 20 / 4 = 5 ) 5 iterações.
-:::
 ???
 
-??? Pior Caso: Complexidade Temporal: ( O(nm) )
-No pior caso, o Boyer-Moore pode ser tão lento quanto a força bruta. Isso acontece quando o texto e o padrão têm muitas repetições, o que faz as heurísticas (especialmente a do sufixo bom) darem saltos mínimos, geralmente de 1 posição. Aí, o algoritmo acaba verificando quase todos os caracteres do padrão em cada alinhamento.
-::: Exemplo
+Dominar a aplicação combinada dessas duas heurísticas é o segredo para entender a eficiência do Boyer-Moore.
 
-```plaintext    
-T:   "aaaaaaaaaaaaaaaaa"
-P:  "aaaab"
-``` 
+## 8. Performance: Por Que o Boyer-Moore é Tão Rápido?
+---------
 
+Vimos o Boyer-Moore em ação e como suas heurísticas permitem saltos inteligentes. Mas quão rápido ele é na prática? Vamos analisar sua **complexidade de tempo**, que é uma forma de medir como o tempo de execução do algoritmo cresce conforme o tamanho da entrada (texto e padrão) aumenta.
 
-A cada tentativa:
-- 4 comparações de 'a' com 'a' (batem)
-- 1 comparação de 'b' com 'a' (falha)
-- Salto de 1 posição
+Lembre-se:
+*   `n` = tamanho do texto
+*   `m` = tamanho do padrão
 
+**Pré-processamento:**
+
+Antes mesmo de começar a busca no texto, o Boyer-Moore precisa pré-processar o padrão para construir as tabelas do Mau Caractere e do Bom Sufixo. Essa etapa geralmente leva um tempo proporcional ao tamanho do padrão mais o tamanho do alfabeto (conjunto de caracteres possíveis). Podemos dizer que é algo em torno de **O(m + k)**, onde *k* é o tamanho do alfabeto. Na prática, para alfabetos de tamanho fixo (como ASCII ou Unicode), consideramos isso como **O(m)**.
+
+**Fase de Busca:**
+
+É aqui que a mágica acontece!
+
+*   **Melhor Caso: O(n / m)**
+    Este é o cenário dos sonhos! Acontece quando o padrão e o texto são muito diferentes, ou quando o mau caractere encontrado no texto frequentemente não existe no padrão. Nesses casos, a heurística do mau caractere permite saltos enormes, do tamanho do próprio padrão (`m`). O algoritmo acaba examinando apenas uma fração do texto, aproximadamente `n / m` caracteres. Isso é chamado de performance **sublinear**, pois ele nem precisa olhar para todos os caracteres do texto! É incrivelmente rápido, especialmente para padrões longos.
+
+*   **Pior Caso: O(n * m) ou O(n)**
+    Sim, infelizmente, existe um cenário (embora raro na prática com textos reais) onde o Boyer-Moore pode se degradar e ter um desempenho semelhante ao da força bruta, **O(n * m)**. Isso pode acontecer com padrões e textos muito repetitivos, onde as heurísticas acabam gerando saltos mínimos (de apenas 1 posição) consistentemente.
+    !!! Otimização Crucial
+    Com implementações cuidadosas da heurística do bom sufixo (como a versão de Galil), o pior caso da fase de busca do Boyer-Moore pode ser garantido como **O(n)**, ou seja, linear em relação ao tamanho do texto, mesmo mantendo a eficiência do melhor caso! A maioria das implementações modernas inclui essa otimização.
+    !!!
+
+*   **Caso Médio (Textos Reais): Próximo de O(n)**
+    Na grande maioria das aplicações práticas, especialmente com textos em linguagem natural ou códigos-fonte (que têm alfabetos relativamente grandes e não são *extremamente* repetitivos), o desempenho do Boyer-Moore é excelente. Ele tende a se aproximar do seu melhor caso ou a ter um desempenho linear, **O(n)**. Isso significa que o tempo de busca cresce de forma diretamente proporcional ao tamanho do texto, o que é muito bom!
+
+**Comparando com a Força Bruta:**
+
+| Algoritmo      | Pré-processamento | Busca (Melhor Caso) | Busca (Pior Caso) | Busca (Caso Médio) |
+| :------------- | :---------------- | :------------------ | :---------------- | :----------------- |
+| Força Bruta    | Nenhum (O(1))     | O(n)                | O(n * m)          | O(n * m)           |
+| Boyer-Moore    | O(m + k) ou O(m)  | **O(n / m)**        | O(n * m) ou **O(n)**¹ | **O(n)**           |
+
+¹ *Com implementações otimizadas do Bom Sufixo.*
+
+A tabela mostra claramente a vantagem do Boyer-Moore, especialmente no melhor caso (sublinear!) e no caso médio (linear). Mesmo que seu pior caso teórico possa ser ruim sem otimizações, na prática ele supera a força bruta na maioria das vezes.
+
+??? Reflexão Final (Atividade 10)
+
+Considerando a performance do Boyer-Moore:
+1. Em que tipo de situação você acha que o Boyer-Moore seria *muito* mais vantajoso que a força bruta?
+2. Existe alguma situação onde a força bruta *poderia* ser preferível (mesmo que rara)?
+
+::: Gabarito
+
+1.  O Boyer-Moore é especialmente vantajoso quando:
+    *   O **padrão é longo**: Isso aumenta a chance de saltos maiores (melhor caso O(n/m)).
+    *   O **alfabeto é grande** (ex: texto em português, código-fonte): Isso aumenta a chance do mau caractere não estar no padrão, levando a saltos maiores.
+    *   O **texto é muito grande**: A diferença entre O(n) ou O(n/m) e O(n*m) se torna gigantesca.
+
+2.  A força bruta *poderia* ser considerada (embora raramente seja a melhor escolha geral) se:
+    *   O **padrão for extremamente curto** (ex: 1 ou 2 caracteres). Nesse caso, a sobrecarga do pré-processamento do Boyer-Moore pode não compensar, e a simplicidade da força bruta pode ser aceitável.
+    *   A **memória for extremamente limitada**, impedindo o armazenamento das tabelas de pré-processamento do Boyer-Moore (cenário muito específico).
+    *   A **implementação for trivial** e a performance não for crítica (mas geralmente, usar uma biblioteca otimizada é melhor).
+
+Em geral, para a maioria das aplicações práticas de busca em texto, algoritmos como Boyer-Moore (ou KMP, Rabin-Karp) são preferíveis à força bruta devido à sua eficiência superior.
 
 :::
+
 ???
-??? Caso Médio (Mais Comum no Uso Real): Complexidade Temporal Esperada: ( O(n + m) )
-Na prática, o Boyer-Moore é um monstro da eficiência! Ele é perfeito para textos com alfabetos grandes (como português ou código-fonte) e padrões longos. O pré-processamento do padrão O(m) e as heurísticas do mau caractere e sufixo bom cortam o número de comparações, tornando a busca praticamente linear.
 
-::: Exemplo
+## 9. Conclusão: O Legado do Salto Inteligente
+---------
 
-```plaintext    
-T: "abcxabcdabcdabcy"
-P: "abcdabcy"
-``` 
+Chegamos ao fim da nossa jornada pelo algoritmo de Boyer-Moore! Vimos como a simples ideia de buscar padrões em texto pode levar a soluções surpreendentemente inteligentes.
 
+Partimos da abordagem direta da força bruta e descobrimos como ela pode ser ineficiente. Então, mergulhamos nas ideias centrais do Boyer-Moore:
 
-Ao comparar com o texto, o algoritmo consegue saltar vários caracteres por causa das heurísticas — evitando comparações redundantes.
+*   **Comparar da direita para a esquerda:** Uma mudança de perspectiva que permite obter informações valiosas mais cedo.
+*   **Heurística do Mau Caractere:** Usar o caractere do texto que causou a falha para guiar o salto, alinhando-o com sua última ocorrência no padrão.
+*   **Heurística do Bom Sufixo:** Reaproveitar a parte do padrão que já coincidiu, buscando realinhá-la com outra ocorrência ou um prefixo correspondente.
+*   **Escolher o Maior Salto:** Combinar as duas heurísticas para maximizar o avanço pelo texto.
+
+Essas ideias, juntas, resultam em um algoritmo que é frequentemente muito mais rápido que a força bruta, especialmente em textos reais, e que possui um desempenho médio excelente.
+
+O Boyer-Moore não é apenas um algoritmo eficiente; ele é um exemplo clássico de como pensar "fora da caixa" e usar a informação disponível (neste caso, as falhas na comparação) de forma inteligente pode levar a soluções computacionais muito mais poderosas.
+
+Esperamos que este handout tenha ajudado você a desvendar os segredos do Boyer-Moore e a apreciar a beleza e a engenhosidade por trás dos algoritmos que usamos todos os dias!
+
+??? Desafio Final (Atividade 11)
+
+Agora é sua vez de aplicar tudo o que aprendeu! Use o algoritmo de Boyer-Moore (combinando as duas heurísticas) para encontrar a primeira ocorrência do padrão `P = "SEARCH"` no texto `T = "THIS_IS_A_TEST_SEARCH_EXAMPLE"`.
+
+Mostre cada alinhamento, as comparações (direita para esquerda), o mau caractere e/ou bom sufixo (se houver), os saltos calculados por cada heurística e o salto final escolhido. Continue até encontrar o padrão.
+
+(Dica: Crie a tabela do Mau Caractere para `SEARCH` primeiro! Para o Bom Sufixo, aplique a lógica dos cenários.)
+
+::: Gabarito (Resumido)
+
+**P = SEARCH (m=6)**
+**T = THIS_IS_A_TEST_SEARCH_EXAMPLE (n=29)**
+
+**Tabela Mau Caractere (SEARCH):** H=5, C=4, R=3, A=2, E=1, S=0, Outros=-1
+
+1.  **Alinhamento 1 (i=0):**
+    ```
+    T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
+             ↑
+    P: S E A R C H
+             ↑
+    ```
+    Falha: `S` vs `H`. Mau Caractere=`S`. Última pos(S)=0. Salto Mau= `j=5 - 0 = 5`. Bom Sufixo=N/A. Salto Final = 5.
+
+2.  **Alinhamento 2 (i=5):**
+    ```
+    T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
+                 ↑
+    P:         S E A R C H
+                 ↑
+    ```
+    Falha: `A` vs `H`. Mau Caractere=`A`. Última pos(A)=2. Salto Mau= `j=5 - 2 = 3`. Bom Sufixo=N/A. Salto Final = 3.
+
+3.  **Alinhamento 3 (i=8):**
+    ```
+    T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
+                       ↑
+    P:           S E A R C H
+                       ↑
+    ```
+    Falha: `T` vs `H`. Mau Caractere=`T`. Última pos(T)=-1. Salto Mau= `j=5 - (-1) = 6`. Bom Sufixo=N/A. Salto Final = 6.
+
+4.  **Alinhamento 4 (i=14):**
+    ```
+    T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
+                             ↑
+    P:                 S E A R C H
+                             ↑
+    ```
+    Falha: `_` vs `H`. Mau Caractere=`_`. Última pos(_)=-1. Salto Mau= `j=5 - (-1) = 6`. Bom Sufixo=N/A. Salto Final = 6.
+
+5.  **Alinhamento 5 (i=20):**
+    ```
+    T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
+                                   ↑
+    P:                       S E A R C H
+                                   ↑
+    ```
+    Match: H==H, C==C, R==R, A==A, E==E, S==S. **Sucesso!** Encontrado na posição 20.
+
 :::
+
 ???
