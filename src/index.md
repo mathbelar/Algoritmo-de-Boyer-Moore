@@ -321,7 +321,7 @@ Para aplicar essa heurística rapidamente, o algoritmo Boyer-Moore primeiro faz 
 Criar essa tabela *antes* de começar a busca é crucial para a velocidade do Boyer-Moore. Ela permite descobrir o salto do mau caractere em tempo constante (O(1)) durante a fase de busca.
 !!!
 
-| Caractere | Última Posição em `EXAMPLE` |
+| Caractere | Última Posição em EXAMPLE |
 | :-------- | :------------------------ |
 | E         | 6                         |
 | L         | 5                         |
@@ -331,7 +331,7 @@ Criar essa tabela *antes* de começar a busca é crucial para a velocidade do Bo
 | X         | 1                         |
 | ... (outros) | -1                       |
 
-Quando ocorre um mismatch com um mau caractere `X` do texto na posição `k` do texto, e o caractere do padrão na posição `j` (lembre-se, `j` diminui da direita para a esquerda), o salto é calculado como: `salto = max(1, j - ultima_posicao(X))`. Usamos `max(1, ...)` para garantir que o padrão sempre avance pelo menos uma posição.
+Quando ocorre um mismatch com um mau caractere X do texto na posição k do texto, e o caractere do padrão na posição **j** (lembre-se, **j** diminui da direita para a esquerda), o salto é calculado como: **salto = max(1, j - ultima_posicao(X))** . Usamos **max(1, ...)** para garantir que o padrão sempre avance pelo menos uma posição.
 
 Essa heurística sozinha já torna o Boyer-Moore muito mais rápido que a força bruta em muitos casos. Mas ainda há outra heurística poderosa que podemos usar, especialmente quando uma parte do padrão *já coincidiu* com o texto antes da falha. Vamos conhecê-la!
 
@@ -342,7 +342,7 @@ A Heurística do Mau Caractere é ótima, mas e se a comparação falhar *depois
 
 **Exemplo Rápido:**
 
-```
+```plaintext
 Texto:  ... A B C D E ...
              ↑ ↑ ↑
 Padrão:    X Y B C D
@@ -350,71 +350,72 @@ Padrão:    X Y B C D
            (Falha aqui!) (Match) (Match) (Match)
 ```
 
-Neste caso, os caracteres `B`, `C` e `D` do padrão coincidiram com o texto. Esse trecho que deu match, `BCD`, é o que chamamos de **"Bom Sufixo"**. Seria um desperdício simplesmente ignorar essa informação e usar apenas o mau caractere (`A` do texto vs `Y` do padrão), não acha?
+Neste caso, os caracteres **B**, **C** e **D** do padrão coincidiram com o texto. Esse trecho que deu match, **BCD**, é o que chamamos de **"Bom Sufixo"**. Seria um desperdício simplesmente ignorar essa informação e usar apenas o mau caractere (**A** do texto vs **Y** do padrão), não acha?
 
 A **Heurística do Bom Sufixo** entra em cena justamente para aproveitar essa correspondência parcial. A ideia é:
 
-**"Já que encontramos esse 'bom sufixo' (`BCD`) no texto, será que existe *outra ocorrência* desse mesmo sufixo ou de parte dele *dentro do próprio padrão*? Se sim, podemos deslizar o padrão para alinhar essa outra ocorrência com o trecho que já sabemos que bateu no texto."**
+**"Já que encontramos esse 'bom sufixo' (BCD) no texto, será que existe *outra ocorrência* desse mesmo sufixo ou de parte dele *dentro do próprio padrão*? Se sim, podemos deslizar o padrão para alinhar essa outra ocorrência com o trecho que já sabemos que bateu no texto."**
 
 Vamos analisar os cenários possíveis:
 
 **Cenário 1: O Bom Sufixo Aparece Novamente no Padrão**
 
-Este é o caso ideal. Se o sufixo que deu match (`t`) aparece novamente *exatamente igual* em outra posição dentro do padrão (e não sobrepondo a ocorrência original), podemos deslizar o padrão para alinhar essa segunda ocorrência (a mais à direita possível que não seja a original) com o `t` que encontramos no texto.
+Este é o caso ideal. Se o sufixo que deu match (t) aparece novamente *exatamente igual* em outra posição dentro do padrão (e não sobrepondo a ocorrência original), podemos deslizar o padrão para alinhar essa segunda ocorrência (a mais à direita possível que não seja a original) com o t que encontramos no texto.
 
 ??? Identifique o Bom Sufixo e o Salto (Atividade 7)
 
-Texto T = `ABABDABAC`
-Padrão P = `DABAC`
+Texto T = ABABDABAC  
+
+Padrão P = DABAC
 
 Alinhamento:
-```
+```plaintext
 Texto:  A B A B D A B A C
               ↑ ↑ ↑ ↑
 Padrão:     D A B A C
             ↑ ↑ ↑ ↑ ↑
            (Falha) (Match) (Match) (Match)
 ```
-1. Comparações: `C==C`, `A==A`, `B==B`. Match!
-2. Falha: `B` (texto) vs `A` (padrão). Falhou!
+1. Comparações: C==C, A==A, B==B. Match!
+2. Falha: B (texto) vs A (padrão). Falhou!
 
-Qual é o **Bom Sufixo** (`t`)? Ele aparece novamente dentro do padrão `DABAC`? Se sim, qual seria o salto sugerido pela Heurística do Bom Sufixo (Cenário 1)?
+Qual é o **Bom Sufixo** (t)? Ele aparece novamente dentro do padrão DABAC? Se sim, qual seria o salto sugerido pela Heurística do Bom Sufixo (Cenário 1)?
 
 ::: Gabarito
 
-O Bom Sufixo (`t`) é `BAC`.
+O Bom Sufixo (t) é BAC.
 
-Verificamos se `BAC` aparece novamente *antes* no padrão `DABAC`. Não, não aparece.
+Verificamos se BAC aparece novamente *antes* no padrão DABAC. Não, não aparece.
 
 Neste caso, o Cenário 1 não se aplica diretamente. Teríamos que ir para o Cenário 2.
 
 **Vamos ajustar o exemplo para o Cenário 1 funcionar:**
 
-Texto T = `ABCABCBAC`
-Padrão P = `BCBAC`
+Texto T = ABCABCBAC
+Padrão P = BCBAC
 
 Alinhamento:
-```
+```plaintext
 Texto:  A B C A B C B A C
               ↑ ↑ ↑ ↑
 Padrão:     B C B A C
             ↑ ↑ ↑ ↑ ↑
            (Falha) (Match) (Match) (Match)
 ```
-1. Comparações: `C==C`, `A==A`, `B==B`. Match!
-2. Falha: `C` (texto) vs `C` (padrão). Match!
-3. Falha: `A` (texto) vs `B` (padrão). Falhou!
+1. Comparações: C==C, A==A, B==B. Match!
+2. Falha: C (texto) vs C (padrão). Match!
+3. Falha: A (texto) vs B (padrão). Falhou!
 
-Bom Sufixo (`t`) = `CBAC`.
+Bom Sufixo (t) = CBAC.
 
-O bom sufixo `CBAC` aparece novamente dentro do padrão `BCBAC`? Não.
+O bom sufixo CBAC aparece novamente dentro do padrão BCBAC? Não.
 
 **Ok, vamos tentar um exemplo que funcione claramente para o Cenário 1:**
 
-Padrão P = `ABMCABM`
-Bom Sufixo (`t`) = `CABM` (Suponha que isso deu match e a falha ocorreu antes)
+Padrão P = ABMCABM
+Bom Sufixo (t) = CABM (Suponha que isso deu match e a falha ocorreu antes)
 
-O bom sufixo `CABM` aparece novamente no padrão `ABMCABM`? Sim, começando na posição 0 (`[CABM]CABM`).
+O bom sufixo CABM aparece novamente no padrão ABMCABM? Sim, começando na posição 0 ([CABM]CABM).
 
 A heurística alinharia essa ocorrência (posição 0) com o bom sufixo encontrado no texto. O salto seria calculado para fazer esse alinhamento.
 
@@ -427,29 +428,29 @@ A heurística alinharia essa ocorrência (posição 0) com o bom sufixo encontra
 
 E se o bom sufixo inteiro não se repetir dentro do padrão? A heurística ainda tenta salvar alguma coisa!
 
-Ela verifica se existe um **prefixo** (começo) do padrão `P` que seja igual a um **sufixo** (final) do bom sufixo `t`. Se houver vários, escolhemos o mais longo.
+Ela verifica se existe um **prefixo** (começo) do padrão P que seja igual a um **sufixo** (final) do bom sufixo t. Se houver vários, escolhemos o mais longo.
 
 ??? Identifique Prefixo e Sufixo (Atividade 8)
 
-Padrão P = `ABRACADABRA`
-Bom Sufixo (`t`) = `ADABRA` (Suponha que isso deu match e a falha ocorreu antes)
+Padrão P = ABRACADABRA
+Bom Sufixo (t) = ADABRA (Suponha que isso deu match e a falha ocorreu antes)
 
-O bom sufixo `ADABRA` se repete *exatamente* antes no padrão? Não.
+O bom sufixo ADABRA se repete *exatamente* antes no padrão? Não.
 
-Existe algum **prefixo** de `P` que seja igual a um **sufixo** de `t`? Qual o mais longo?
+Existe algum **prefixo** de P que seja igual a um **sufixo** de t? Qual o mais longo?
 
-*   Prefixos de P: `A`, `AB`, `ABR`, `ABRA`, `ABRAC`, ...
-*   Sufixos de t: `A`, `RA`, `BRA`, `ABRA`, `DABRA`, `ADABRA`
+*   Prefixos de P: A, AB, ABR, ABRA, ABRAC, ...
+*   Sufixos de t: A, RA, BRA, ABRA, DABRA, ADABRA
 
 ::: Gabarito
 
 Sim, existem prefixos de P que são sufixos de t:
-*   `A` (prefixo `A`, sufixo `A`)
-*   `ABRA` (prefixo `ABRA`, sufixo `ABRA`)
+*   A (prefixo A, sufixo A)
+*   ABRA (prefixo ABRA, sufixo ABRA)
 
-O mais longo é `ABRA`.
+O mais longo é ABRA.
 
-A heurística do Bom Sufixo (Cenário 2) sugeriria um salto para alinhar o prefixo `ABRA` do padrão com o sufixo `ABRA` do bom sufixo encontrado no texto.
+A heurística do Bom Sufixo (Cenário 2) sugeriria um salto para alinhar o prefixo ABRA do padrão com o sufixo ABRA do bom sufixo encontrado no texto.
 
 :::
 
@@ -457,11 +458,11 @@ A heurística do Bom Sufixo (Cenário 2) sugeriria um salto para alinhar o prefi
 
 **Cenário 3: Nenhuma Ocorrência ou Prefixo Correspondente**
 
-Se nem o bom sufixo inteiro se repete, nem um prefixo do padrão casa com um sufixo do bom sufixo, então não temos informação útil para reutilizar. Nesse caso, a heurística do bom sufixo sugere deslizar o padrão inteiro para a direita, passando completamente pelo local do mismatch (salto de `m`, tamanho do padrão).
+Se nem o bom sufixo inteiro se repete, nem um prefixo do padrão casa com um sufixo do bom sufixo, então não temos informação útil para reutilizar. Nesse caso, a heurística do bom sufixo sugere deslizar o padrão inteiro para a direita, passando completamente pelo local do mismatch (salto de m, tamanho do padrão).
 
 **Calculando o Salto (Pré-processamento)**
 
-Assim como a heurística do mau caractere, a do bom sufixo também exige um pré-processamento do padrão para calcular os possíveis saltos de antemão. Isso envolve criar tabelas (mais complexas que a do mau caractere) que armazenam, para cada possível posição de falha `i` no padrão, qual seria o deslocamento correto baseado nos Cenários 1, 2 e 3.
+Assim como a heurística do mau caractere, a do bom sufixo também exige um pré-processamento do padrão para calcular os possíveis saltos de antemão. Isso envolve criar tabelas (mais complexas que a do mau caractere) que armazenam, para cada possível posição de falha i no padrão, qual seria o deslocamento correto baseado nos Cenários 1, 2 e 3.
 
 !!! Foco no Reuso
 A beleza da Heurística do Bom Sufixo é tentar **reaproveitar** o trabalho já feito (a parte que deu match) para encontrar o próximo possível alinhamento.
@@ -476,7 +477,7 @@ Agora que conhecemos as duas heurísticas do Boyer-Moore, surge uma pergunta nat
 
 Imagine a situação:
 
-```
+```plaintext
 Texto:  ... W X Y Z ...
              ↑ ↑
 Padrão:    A B C D
@@ -485,11 +486,11 @@ Padrão:    A B C D
 ```
 
 Aqui, temos:
-*   Um **mau caractere**: `W` (do texto, que não bateu com `B` do padrão).
-*   Um **bom sufixo**: `CD` (a parte do padrão que coincidiu).
+*   Um **mau caractere**: W (do texto, que não bateu com B do padrão).
+*   Um **bom sufixo**: CD (a parte do padrão que coincidiu).
 
-A Heurística do Mau Caractere nos daria um salto baseado na posição do `W` dentro do padrão `ABCD`.
-A Heurística do Bom Sufixo nos daria um salto baseado na próxima ocorrência de `CD` (ou de um prefixo que case com seu sufixo) dentro de `ABCD`.
+A Heurística do Mau Caractere nos daria um salto baseado na posição do W dentro do padrão ABCD.
+A Heurística do Bom Sufixo nos daria um salto baseado na próxima ocorrência de CD (ou de um prefixo que case com seu sufixo) dentro de ABCD.
 
 Qual salto escolher?
 
@@ -498,7 +499,7 @@ A resposta é simples e focada na eficiência: **escolha o maior salto!**
 O algoritmo Boyer-Moore calcula o deslocamento sugerido por *ambas* as heurísticas e aplica aquele que mover o padrão mais para a direita. O objetivo é sempre avançar o máximo possível pelo texto com segurança, pulando o maior número de comparações desnecessárias.
 
 **Regra de Ouro:**
-`salto_final = max(salto_mau_caractere, salto_bom_sufixo)`
+salto_final = max(salto_mau_caractere, salto_bom_sufixo)
 
 (Lembrando que o salto mínimo é sempre 1, para garantir o progresso).
 
@@ -506,29 +507,29 @@ O algoritmo Boyer-Moore calcula o deslocamento sugerido por *ambas* as heurísti
 
 Considere o passo 4 do exemplo completo anterior:
 
-```
+```plaintext
 Texto:  H E R E _ I S _ A _ S I M P L E _ E X A M P L E
                                   ↑
 Padrão:             E X A M P L E
                                   ↑
 ```
-Falha: `I` (texto) vs `A` (padrão).
+Falha: I (texto) vs A (padrão).
 
-*   Mau Caractere (`I`): Salto calculado = 3.
-*   Bom Sufixo (`MPLE`): Salto calculado = 3 (baseado no prefixo `E`).
+*   Mau Caractere (I): Salto calculado = 3.
+*   Bom Sufixo (MPLE): Salto calculado = 3 (baseado no prefixo E).
 
-Qual seria o `salto_final` aplicado pelo algoritmo?
+Qual seria o salto_final aplicado pelo algoritmo?
 
 ::: Gabarito
 
-`salto_final = max(salto_mau_caractere, salto_bom_sufixo)`
-`salto_final = max(3, 3) = 3`
+salto_final = max(salto_mau_caractere, salto_bom_sufixo)
+salto_final = max(3, 3) = 3
 
 O algoritmo saltaria 3 posições.
 
 **Outro cenário:** E se o Mau Caractere sugerisse salto 2 e o Bom Sufixo sugerisse salto 5?
 
-`salto_final = max(2, 5) = 5`. O algoritmo escolheria o salto maior (5).
+salto_final = max(2, 5) = 5. O algoritmo escolheria o salto maior (5).
 
 :::
 
@@ -542,8 +543,8 @@ Dominar a aplicação combinada dessas duas heurísticas é o segredo para enten
 Vimos o Boyer-Moore em ação e como suas heurísticas permitem saltos inteligentes. Mas quão rápido ele é na prática? Vamos analisar sua **complexidade de tempo**, que é uma forma de medir como o tempo de execução do algoritmo cresce conforme o tamanho da entrada (texto e padrão) aumenta.
 
 Lembre-se:
-*   `n` = tamanho do texto
-*   `m` = tamanho do padrão
+*   n = tamanho do texto
+*   m = tamanho do padrão
 
 **Pré-processamento:**
 
@@ -554,7 +555,7 @@ Antes mesmo de começar a busca no texto, o Boyer-Moore precisa pré-processar o
 É aqui que a mágica acontece!
 
 *   **Melhor Caso: O(n / m)**
-    Este é o cenário dos sonhos! Acontece quando o padrão e o texto são muito diferentes, ou quando o mau caractere encontrado no texto frequentemente não existe no padrão. Nesses casos, a heurística do mau caractere permite saltos enormes, do tamanho do próprio padrão (`m`). O algoritmo acaba examinando apenas uma fração do texto, aproximadamente `n / m` caracteres. Isso é chamado de performance **sublinear**, pois ele nem precisa olhar para todos os caracteres do texto! É incrivelmente rápido, especialmente para padrões longos.
+    Este é o cenário dos sonhos! Acontece quando o padrão e o texto são muito diferentes, ou quando o mau caractere encontrado no texto frequentemente não existe no padrão. Nesses casos, a heurística do mau caractere permite saltos enormes, do tamanho do próprio padrão (m). O algoritmo acaba examinando apenas uma fração do texto, aproximadamente n / m caracteres. Isso é chamado de performance **sublinear**, pois ele nem precisa olhar para todos os caracteres do texto! É incrivelmente rápido, especialmente para padrões longos.
 
 *   **Pior Caso: O(n * m) ou O(n)**
     Sim, infelizmente, existe um cenário (embora raro na prática com textos reais) onde o Boyer-Moore pode se degradar e ter um desempenho semelhante ao da força bruta, **O(n * m)**. Isso pode acontecer com padrões e textos muito repetitivos, onde as heurísticas acabam gerando saltos mínimos (de apenas 1 posição) consistentemente.
@@ -620,11 +621,11 @@ Esperamos que este handout tenha ajudado você a desvendar os segredos do Boyer-
 
 ??? Desafio Final (Atividade 11)
 
-Agora é sua vez de aplicar tudo o que aprendeu! Use o algoritmo de Boyer-Moore (combinando as duas heurísticas) para encontrar a primeira ocorrência do padrão `P = "SEARCH"` no texto `T = "THIS_IS_A_TEST_SEARCH_EXAMPLE"`.
+Agora é sua vez de aplicar tudo o que aprendeu! Use o algoritmo de Boyer-Moore (combinando as duas heurísticas) para encontrar a primeira ocorrência do padrão P = "SEARCH" no texto T = "THIS_IS_A_TEST_SEARCH_EXAMPLE".
 
 Mostre cada alinhamento, as comparações (direita para esquerda), o mau caractere e/ou bom sufixo (se houver), os saltos calculados por cada heurística e o salto final escolhido. Continue até encontrar o padrão.
 
-(Dica: Crie a tabela do Mau Caractere para `SEARCH` primeiro! Para o Bom Sufixo, aplique a lógica dos cenários.)
+(Dica: Crie a tabela do Mau Caractere para SEARCH primeiro! Para o Bom Sufixo, aplique a lógica dos cenários.)
 
 ::: Gabarito (Resumido)
 
@@ -634,43 +635,43 @@ Mostre cada alinhamento, as comparações (direita para esquerda), o mau caracte
 **Tabela Mau Caractere (SEARCH):** H=5, C=4, R=3, A=2, E=1, S=0, Outros=-1
 
 1.  **Alinhamento 1 (i=0):**
-    ```
+    ```plaintext
     T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
              ↑
     P: S E A R C H
              ↑
     ```
-    Falha: `S` vs `H`. Mau Caractere=`S`. Última pos(S)=0. Salto Mau= `j=5 - 0 = 5`. Bom Sufixo=N/A. Salto Final = 5.
+    Falha: S vs H. Mau Caractere=S. Última pos(S)=0. Salto Mau= j=5 - 0 = 5. Bom Sufixo=N/A. Salto Final = 5.
 
 2.  **Alinhamento 2 (i=5):**
-    ```
+    ```plaintext
     T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
                  ↑
     P:         S E A R C H
                  ↑
     ```
-    Falha: `A` vs `H`. Mau Caractere=`A`. Última pos(A)=2. Salto Mau= `j=5 - 2 = 3`. Bom Sufixo=N/A. Salto Final = 3.
+    Falha: A vs H. Mau Caractere=A. Última pos(A)=2. Salto Mau= j=5 - 2 = 3. Bom Sufixo=N/A. Salto Final = 3.
 
 3.  **Alinhamento 3 (i=8):**
-    ```
+    ```plaintext
     T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
                        ↑
     P:           S E A R C H
                        ↑
     ```
-    Falha: `T` vs `H`. Mau Caractere=`T`. Última pos(T)=-1. Salto Mau= `j=5 - (-1) = 6`. Bom Sufixo=N/A. Salto Final = 6.
+    Falha: T vs H. Mau Caractere=T. Última pos(T)=-1. Salto Mau= j=5 - (-1) = 6. Bom Sufixo=N/A. Salto Final = 6.
 
 4.  **Alinhamento 4 (i=14):**
-    ```
+    ```plaintext
     T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
                              ↑
     P:                 S E A R C H
                              ↑
     ```
-    Falha: `_` vs `H`. Mau Caractere=`_`. Última pos(_)=-1. Salto Mau= `j=5 - (-1) = 6`. Bom Sufixo=N/A. Salto Final = 6.
+    Falha: _ vs H. Mau Caractere=_. Última pos(_)=-1. Salto Mau= j=5 - (-1) = 6. Bom Sufixo=N/A. Salto Final = 6.
 
 5.  **Alinhamento 5 (i=20):**
-    ```
+    ```plaintext
     T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
                                    ↑
     P:                       S E A R C H
