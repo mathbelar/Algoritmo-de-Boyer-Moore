@@ -569,63 +569,21 @@ Esperamos que este handout tenha ajudado você a desvendar os segredos do Boyer-
 
 ??? Desafio Final (Atividade 11)
 
-Agora é sua vez de aplicar tudo o que aprendeu! Use o algoritmo de Boyer-Moore (combinando as duas heurísticas) para encontrar a primeira ocorrência do padrão P = "SEARCH" no texto T = "THIS_IS_A_TEST_SEARCH_EXAMPLE".
+Agora é sua vez de aplicar tudo o que aprendeu! Use o algoritmo de Boyer-Moore (combinando as duas heurísticas) para encontrar a primeira ocorrência do padrão 
 
-Mostre cada alinhamento, as comparações (direita para esquerda), o mau caractere e/ou bom sufixo (se houver), os saltos calculados por cada heurística e o salto final escolhido. Continue até encontrar o padrão.
+```plaintext
+Texto  = G T T A T A G C T G A T C G C G G C G T A G C G G C G A A
 
-(Dica: Crie a tabela do Mau Caractere para SEARCH primeiro! Para o Bom Sufixo, aplique a lógica dos cenários.)
+Padrão = G T A G C G G C G
+
+```
+
+Escolha a heurística que proporcione o maior salto!
+
 
 ::: Gabarito (Resumido)
 
-**P = SEARCH (m=6)**
-**T = THIS_IS_A_TEST_SEARCH_EXAMPLE (n=29)**
-
-**Tabela Mau Caractere (SEARCH):** H=5, C=4, R=3, A=2, E=1, S=0, Outros=-1
-
-1.  **Alinhamento 1 (i=0):**
-    ```plaintext
-    T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
-             ↑
-    P: S E A R C H
-             ↑
-    ```
-    Falha: S vs H. Mau Caractere=S. Última pos(S)=0. Salto Mau= j=5 - 0 = 5. Bom Sufixo=N/A. Salto Final = 5.
-
-2.  **Alinhamento 2 (i=5):**
-    ```plaintext
-    T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
-                 ↑
-    P:         S E A R C H
-                 ↑
-    ```
-    Falha: A vs H. Mau Caractere=A. Última pos(A)=2. Salto Mau= j=5 - 2 = 3. Bom Sufixo=N/A. Salto Final = 3.
-
-3.  **Alinhamento 3 (i=8):**
-    ```plaintext
-    T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
-                       ↑
-    P:           S E A R C H
-                       ↑
-    ```
-    Falha: T vs H. Mau Caractere=T. Última pos(T)=-1. Salto Mau= j=5 - (-1) = 6. Bom Sufixo=N/A. Salto Final = 6.
-
-4.  **Alinhamento 4 (i=14):**
-    ```plaintext
-    T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
-                             ↑
-    P:                 S E A R C H
-                             ↑
-    ```
-    Falha: _ vs H. Mau Caractere=_. Última pos(_)=-1. Salto Mau= j=5 - (-1) = 6. Bom Sufixo=N/A. Salto Final = 6.
-
-5.  **Alinhamento 5 (i=20):**
-    ```plaintext
-    T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
-                                   ↑
-    P:                       S E A R C H
-                                   ↑
-    ```
-    Match: H==H, C==C, R==R, A==A, E==E, S==S. **Sucesso!** Encontrado na posição 20.
+:DESAFIO
 
 :::
 
