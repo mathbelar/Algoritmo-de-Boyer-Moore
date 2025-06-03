@@ -532,9 +532,6 @@ Partimos da abordagem direta da força bruta e descobrimos como ela pode ser ine
 
 Essas ideias, juntas, resultam em um algoritmo que é frequentemente muito mais rápido que a força bruta, especialmente em textos reais, e que possui um desempenho médio excelente.
 
-O Boyer-Moore não é apenas um algoritmo eficiente; ele é um exemplo clássico de como pensar "fora da caixa" e usar a informação disponível (neste caso, as falhas na comparação) de forma inteligente pode levar a soluções computacionais muito mais poderosas.
-
-Esperamos que este handout tenha ajudado você a desvendar os segredos do Boyer-Moore e a apreciar a beleza e a engenhosidade por trás dos algoritmos que usamos todos os dias!
 
 ??? Desafio Final (Atividade 11)
 
