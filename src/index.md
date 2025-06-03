@@ -315,6 +315,25 @@ Quando ocorre um mismatch com um mau caractere X do texto na posição k do text
 
 Essa heurística sozinha já torna o Boyer-Moore muito mais rápido que a força bruta em muitos casos. Mas ainda há outra heurística poderosa que podemos usar, especialmente quando uma parte do padrão *já coincidiu* com o texto antes da falha. Vamos conhecê-la!
 
+**Pseudocódigo**
+
+Como o objetivo é entender o algortimo, temos aqui um pseudocódigo para essa heurística
+
+```pseudocode
+
+FUNÇÃO CalcularSaltoMauCaractere(texto, padrao, pos_erro_texto, pos_erro_padrao, tabela_mau):
+
+    caractere_ruim = texto[pos_erro_texto]
+    ultima_posicao = tabela_mau.obter(caractere_ruim, -1)
+
+    salto = pos_erro_padrao - ultima_posicao
+    RETORNAR max(1, salto)
+
+FIM_FUNÇÃO
+
+
+```
+
 ## 6. Heurística 2: Aproveitando o "Bom Sufixo"
 ---------
 
@@ -350,41 +369,9 @@ Usando a heurística do bom sufixo, quantos saltos seriam necessários para acha
 
 ::: Gabarito
 
-O Bom Sufixo (t) é BAC.
+:AT7
 
-Verificamos se BAC aparece novamente *antes* no padrão DABAC. Não, não aparece.
-
-Neste caso, o Cenário 1 não se aplica diretamente. Teríamos que ir para o Cenário 2.
-
-**Vamos ajustar o exemplo para o Cenário 1 funcionar:**
-
-Texto T = ABCABCBAC
-Padrão P = BCBAC
-
-Alinhamento:
-```plaintext
-Texto:  A B C A B C B A C
-              ↑ ↑ ↑ ↑
-Padrão:     B C B A C
-            ↑ ↑ ↑ ↑ ↑
-           (Falha) (Match) (Match) (Match)
-```
-1. Comparações: C==C, A==A, B==B. Match!
-2. Falha: C (texto) vs C (padrão). Match!
-3. Falha: A (texto) vs B (padrão). Falhou!
-
-Bom Sufixo (t) = CBAC.
-
-O bom sufixo CBAC aparece novamente dentro do padrão BCBAC? Não.
-
-**Ok, vamos tentar um exemplo que funcione claramente para o Cenário 1:**
-
-Padrão P = ABMCABM
-Bom Sufixo (t) = CABM (Suponha que isso deu match e a falha ocorreu antes)
-
-O bom sufixo CABM aparece novamente no padrão ABMCABM? Sim, começando na posição 0 ([CABM]CABM).
-
-A heurística alinharia essa ocorrência (posição 0) com o bom sufixo encontrado no texto. O salto seria calculado para fazer esse alinhamento.
+Nosso bom sufixo nesse caso é o "bcd".
 
 :::
 
@@ -432,6 +419,22 @@ A beleza da Heurística do Bom Sufixo é tentar **reaproveitar** o trabalho já 
 !!!
 
 Agora temos duas ferramentas poderosas: a Heurística do Mau Caractere e a Heurística do Bom Sufixo. Mas qual delas usar quando ambas puderem ser aplicadas? É o que veremos a seguir!
+
+**Pseudocódigo**
+
+Como o objetivo é entender o algortimo, temos aqui um pseudocódigo para essa heurística
+
+```pseudocode
+
+FUNÇÃO CalcularSaltoBomSufixo(pos_erro_padrao, tam_padrao, tabela_bom):
+
+    indice = pos_erro_padrao + 1
+    RETORNAR tabela_bom[indice]
+
+FIM_FUNÇÃO
+
+
+```
 
 ## 7. O Grande Duelo: Mau Caractere vs. Bom Sufixo
 ---------
@@ -484,6 +487,50 @@ Mau Caractere = "F", esse caractere aparece denovo no padrão, e ele nos permite
 ???
 
 Dominar a aplicação combinada dessas duas heurísticas é o segredo para entender a eficiência do Boyer-Moore.
+
+**Pseudocódigo final**
+
+Como o objetivo é entender o algortimo, temos aqui um pseudocódigo para essa heurística
+
+```pseudocode
+
+FUNÇÃO BoyerMooreBuscaCombinada(texto, padrao):
+
+    n = comprimento(texto)
+    m = comprimento(padrao)
+    ocorrencias = []
+
+    tabela_mau = PreProcessarMauCaractere(padrao)
+    tabela_bom = PreProcessarBomSufixo(padrao)
+
+    i = 0
+
+    ENQUANTO i <= n - m:
+
+        j = m - 1
+
+        // Comparação do padrão com o texto (direita para esquerda)
+        ENQUANTO j >= 0 E padrao[j] == texto[i + j]:
+            j = j - 1
+        FIM_ENQUANTO
+
+        SE j < 0:
+            ocorrencias.adicionar(i)
+            i = i + tabela_bom[0] // salto após match completo
+
+        SENÃO:
+            salto_mau = CalcularSaltoMauCaractere(texto, padrao, i + j, j, tabela_mau)
+            salto_bom = CalcularSaltoBomSufixo(j, m, tabela_bom)
+            i = i + max(salto_mau, salto_bom)
+
+    FIM_ENQUANTO
+
+    RETORNAR ocorrencias
+
+FIM_FUNÇÃO
+
+
+```
 
 ## 8. Performance: Por Que o Boyer-Moore é Tão Rápido?
 ---------
