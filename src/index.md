@@ -350,10 +350,41 @@ Usando a heurística do bom sufixo, quantos saltos seriam necessários para acha
 
 ::: Gabarito
 
-:AT7
+O Bom Sufixo (t) é BAC.
 
-Veja que BCD é o nosso bom sufixo t(indicado de azul), encontrando-o denovo no padrão podemos alinhar eles em 1 único salto!
-Perceba que, se você tentar usar apenas a heurística do maú caractere, precisará de 2 saltos para encontrar o padrão. Tente fazer isso!
+Verificamos se BAC aparece novamente *antes* no padrão DABAC. Não, não aparece.
+
+Neste caso, o Cenário 1 não se aplica diretamente. Teríamos que ir para o Cenário 2.
+
+**Vamos ajustar o exemplo para o Cenário 1 funcionar:**
+
+Texto T = ABCABCBAC
+Padrão P = BCBAC
+
+Alinhamento:
+```plaintext
+Texto:  A B C A B C B A C
+              ↑ ↑ ↑ ↑
+Padrão:     B C B A C
+            ↑ ↑ ↑ ↑ ↑
+           (Falha) (Match) (Match) (Match)
+```
+1. Comparações: C==C, A==A, B==B. Match!
+2. Falha: C (texto) vs C (padrão). Match!
+3. Falha: A (texto) vs B (padrão). Falhou!
+
+Bom Sufixo (t) = CBAC.
+
+O bom sufixo CBAC aparece novamente dentro do padrão BCBAC? Não.
+
+**Ok, vamos tentar um exemplo que funcione claramente para o Cenário 1:**
+
+Padrão P = ABMCABM
+Bom Sufixo (t) = CABM (Suponha que isso deu match e a falha ocorreu antes)
+
+O bom sufixo CABM aparece novamente no padrão ABMCABM? Sim, começando na posição 0 ([CABM]CABM).
+
+A heurística alinharia essa ocorrência (posição 0) com o bom sufixo encontrado no texto. O salto seria calculado para fazer esse alinhamento.
 
 :::
 
@@ -535,63 +566,21 @@ Essas ideias, juntas, resultam em um algoritmo que é frequentemente muito mais 
 
 ??? Desafio Final (Atividade 11)
 
-Agora é sua vez de aplicar tudo o que aprendeu! Use o algoritmo de Boyer-Moore (combinando as duas heurísticas) para encontrar a primeira ocorrência do padrão P = "SEARCH" no texto T = "THIS_IS_A_TEST_SEARCH_EXAMPLE".
+Agora é sua vez de aplicar tudo o que aprendeu! Use o algoritmo de Boyer-Moore (combinando as duas heurísticas) para encontrar a primeira ocorrência do padrão 
 
-Mostre cada alinhamento, as comparações (direita para esquerda), o mau caractere e/ou bom sufixo (se houver), os saltos calculados por cada heurística e o salto final escolhido. Continue até encontrar o padrão.
+```plaintext
+Texto  = G T T A T A G C T G A T C G C G G C G T A G C G G C G A A
 
-(Dica: Crie a tabela do Mau Caractere para SEARCH primeiro! Para o Bom Sufixo, aplique a lógica dos cenários.)
+Padrão = G T A G C G G C G
+
+```
+
+Escolha a heurística que proporcione o maior salto!
+
 
 ::: Gabarito (Resumido)
 
-**P = SEARCH (m=6)**
-**T = THIS_IS_A_TEST_SEARCH_EXAMPLE (n=29)**
-
-**Tabela Mau Caractere (SEARCH):** H=5, C=4, R=3, A=2, E=1, S=0, Outros=-1
-
-1.  **Alinhamento 1 (i=0):**
-    ```plaintext
-    T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
-             ↑
-    P: S E A R C H
-             ↑
-    ```
-    Falha: S vs H. Mau Caractere=S. Última pos(S)=0. Salto Mau= j=5 - 0 = 5. Bom Sufixo=N/A. Salto Final = 5.
-
-2.  **Alinhamento 2 (i=5):**
-    ```plaintext
-    T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
-                 ↑
-    P:         S E A R C H
-                 ↑
-    ```
-    Falha: A vs H. Mau Caractere=A. Última pos(A)=2. Salto Mau= j=5 - 2 = 3. Bom Sufixo=N/A. Salto Final = 3.
-
-3.  **Alinhamento 3 (i=8):**
-    ```plaintext
-    T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
-                       ↑
-    P:           S E A R C H
-                       ↑
-    ```
-    Falha: T vs H. Mau Caractere=T. Última pos(T)=-1. Salto Mau= j=5 - (-1) = 6. Bom Sufixo=N/A. Salto Final = 6.
-
-4.  **Alinhamento 4 (i=14):**
-    ```plaintext
-    T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
-                             ↑
-    P:                 S E A R C H
-                             ↑
-    ```
-    Falha: _ vs H. Mau Caractere=_. Última pos(_)=-1. Salto Mau= j=5 - (-1) = 6. Bom Sufixo=N/A. Salto Final = 6.
-
-5.  **Alinhamento 5 (i=20):**
-    ```plaintext
-    T: T H I S _ I S _ A _ T E S T _ S E A R C H _ E X A M P L E
-                                   ↑
-    P:                       S E A R C H
-                                   ↑
-    ```
-    Match: H==H, C==C, R==R, A==A, E==E, S==S. **Sucesso!** Encontrado na posição 20.
+:DESAFIO
 
 :::
 
