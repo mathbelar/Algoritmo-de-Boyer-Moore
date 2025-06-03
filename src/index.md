@@ -266,12 +266,14 @@ O Brute Force anterior levaria 10 iterações para achar o primeiro match, ja ut
 
 Agora, e se o mau caractere do texto *existir* dentro do padrão?
 
-*   **Texto (T):** `... X ...` (Onde X é o mau caractere)
-*   **Padrão (P):** `... W X Y Z` (Comparando Z com X, e `X != Z`)
+*   **Texto T:**  `...  G C T T C T G C ...` (Onde C é o mau caractere)
+*   **Padrão P:** `... C C T T T T G C` (Mismatch entre o C(texto) e T(padrão))
 
-Neste caso, sabemos que o `X` do texto causou a falha. A heurística diz: encontre a **última ocorrência** (a mais à direita) do caractere `X` *dentro do padrão P*. Então, deslize o padrão para a direita de forma que essa última ocorrência no padrão se alinhe com o `X` do texto.
+Neste caso, sabemos que o "C" do texto causou a falha. A heurística diz: encontre a **última ocorrência** (a mais à direita) do caractere "C" *dentro do padrão P*. Então, deslize o padrão para a direita de forma que essa última ocorrência no padrão se alinhe com o "C" do texto.
 
-Por que a última ocorrência? Para garantir que não pulemos demais e percamos uma possível correspondência.
+Depois, de encontrar essa última ocorrência, podemos alinha P com T e continuar comparando os caractéres. 
+
+Por que a última ocorrência? Para garantir que não pulemos demais e percamos uma possível correspondência. Nesse caso, a última ocorrência de "C" é na segunda posição do padrão.
 
 ??? Pratique o Salto (Atividade 6)
 
