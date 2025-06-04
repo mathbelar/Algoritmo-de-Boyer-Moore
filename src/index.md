@@ -1,5 +1,5 @@
 # Algoritmo de Boyer-Moore: Desvendando a Busca Rápida em Textos
-======
+
 
 ## 1. Introdução: A Arte de Encontrar Agulhas em Palheiros Digitais
 ---------
@@ -317,7 +317,7 @@ Essa heurística sozinha já torna o Boyer-Moore muito mais rápido que a força
 
 **Pseudocódigo**
 
-Como o objetivo é entender o algortimo, temos aqui um pseudocódigo para essa heurística
+Agora que entendemos a lógica por trás da heurística, veja como isso é traduzido em um pequeno pseudocódigo:
 
 ```pseudocode
 
@@ -422,7 +422,7 @@ Agora temos duas ferramentas poderosas: a Heurística do Mau Caractere e a Heur�
 
 **Pseudocódigo**
 
-Como o objetivo é entender o algortimo, temos aqui um pseudocódigo para essa heurística
+Vamos ver agora como a heurística do bom sufixo é aplicada em forma de pseudocódigo simples:
 
 ```pseudocode
 
@@ -490,7 +490,7 @@ Dominar a aplicação combinada dessas duas heurísticas é o segredo para enten
 
 **Pseudocódigo final**
 
-Como o objetivo é entender o algortimo, temos aqui um pseudocódigo para essa heurística
+Agora que entendemos como combinar as duas heurísticas, veja como isso aparece no pseudocódigo completo do algoritmo Boyer-Moore:
 
 ```pseudocode
 
@@ -531,6 +531,52 @@ FIM_FUNÇÃO
 
 
 ```
+
+???  Como seria esse pseudocódigo em C? 🤔 
+
+Bom, para os corajosos de plantão, aqui está uma versão do algoritmo Boyer-Moore com as heurísticas combinadas.
+
+:::
+
+``` c
+
+void BoyerMooreBuscaCombinada(char *texto, char *padrao) {
+
+    int n = strlen(texto);
+    int m = strlen(padrao);
+    int tabela_mau[MAX_CHAR];
+    int *tabela_bom = malloc((m + 1) * sizeof(int));
+
+    PreProcessarMauCaractere(padrao, m, tabela_mau);
+    PreProcessarBomSufixo(padrao, m, tabela_bom);
+
+    int i = 0;
+
+    while (i <= n - m) {
+        int j = m - 1;
+
+        // Comparação do padrão com o texto (da direita para a esquerda)
+        while (j >= 0 && padrao[j] == texto[i + j]) {
+            j = j - 1;
+        }
+
+        if (j < 0) {
+            // ocorrência encontrada
+            printf("Ocorrência encontrada na posição %d\n", i);
+            i = i + tabela_bom[0];  
+        } else {
+            int salto_mau = CalcularSaltoMauCaractere(texto, padrao, i + j, j, tabela_mau);
+            int salto_bom = CalcularSaltoBomSufixo(j, m, tabela_bom);
+            int salto = (salto_mau > salto_bom) ? salto_mau : salto_bom;
+            i = i + salto;
+        }
+    }
+
+}
+```
+:::
+
+???
 
 ## 8. Performance: Por Que o Boyer-Moore é Tão Rápido?
 ---------
