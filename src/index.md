@@ -575,13 +575,13 @@ Padrão = G T A G C G G C G
 
 ```
 
-Escolha a heurística que proporcione o maior salto!
 
 
 ::: Gabarito (Resumido)
 
 :DESAFIO
 
+O segredo do problema é entender que há casos em que será possível utilizar as duas heurísticas, nesses casos, deve-se escolher àquela que proporcionará o maior número de saltos
 :::
 
 ???
